@@ -506,7 +506,9 @@ def execute_sql_console():
 
 @app.route("/download/report-pdf")
 def download_pdf():
-    pdf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Hospital_Management_System_Remaining_Steps_8_to_13.pdf")
+    pdf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Hospital_Management_System_Final_Project_Report.pdf")
+    if not os.path.exists(pdf_path):
+        pdf_path = os.path.join(os.path.dirname(os.path.abspath(__file__)), "Hospital_Management_System_Remaining_Steps_8_to_13.pdf")
     if os.path.exists(pdf_path):
         return send_from_directory(os.path.dirname(pdf_path), os.path.basename(pdf_path), as_attachment=True)
     return jsonify({"error": "Report PDF not found."}), 404
