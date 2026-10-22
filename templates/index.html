@@ -1,0 +1,767 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>HOSPITAL ERP — Hospital &amp; Laboratory Management System</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+  <link rel="stylesheet" href="/static/style.css">
+</head>
+<body>
+  <!-- SCREEN-FIT FULL VIEWPORT CONTAINER -->
+  <div class="erp-container">
+    
+    <!-- BACKGROUND 3D DNA HELIX ARTWORK -->
+    <div class="dna-background" id="dna-background">
+      <svg viewBox="0 0 1440 900" fill="none" xmlns="http://www.w3.org/2000/svg" class="dna-svg">
+        <defs>
+          <linearGradient id="dnaGrad1" x1="0%" y1="0%" x2="100%" y2="100%">
+            <stop offset="0%" stop-color="#38BDF8" stop-opacity="0.85"/>
+            <stop offset="50%" stop-color="#6366F1" stop-opacity="0.8"/>
+            <stop offset="100%" stop-color="#A855F7" stop-opacity="0.9"/>
+          </linearGradient>
+          <linearGradient id="dnaGrad2" x1="100%" y1="0%" x2="0%" y2="100%">
+            <stop offset="0%" stop-color="#60A5FA" stop-opacity="0.7"/>
+            <stop offset="100%" stop-color="#3B82F6" stop-opacity="0.6"/>
+          </linearGradient>
+          <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+            <feGaussianBlur stdDeviation="8" result="blur" />
+            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+          </filter>
+        </defs>
+        <path d="M 650,420 Q 820,280 1000,430 T 1380,390" stroke="url(#dnaGrad1)" stroke-width="14" stroke-linecap="round" filter="url(#glow)" opacity="0.75"/>
+        <path d="M 670,440 Q 840,580 1020,410 T 1400,460" stroke="url(#dnaGrad2)" stroke-width="12" stroke-linecap="round" opacity="0.65"/>
+        <line x1="720" y1="360" x2="740" y2="480" stroke="#60A5FA" stroke-width="3.5" opacity="0.7"/>
+        <line x1="790" y1="310" x2="810" y2="530" stroke="#818CF8" stroke-width="4" opacity="0.8"/>
+        <line x1="870" y1="320" x2="890" y2="520" stroke="#A78BFA" stroke-width="4" opacity="0.8"/>
+        <line x1="950" y1="380" x2="970" y2="450" stroke="#38BDF8" stroke-width="3" opacity="0.7"/>
+        <line x1="1040" y1="440" x2="1055" y2="390" stroke="#6366F1" stroke-width="3.5" opacity="0.75"/>
+        <line x1="1120" y1="410" x2="1140" y2="450" stroke="#818CF8" stroke-width="4" opacity="0.8"/>
+        <line x1="1200" y1="380" x2="1220" y2="470" stroke="#A855F7" stroke-width="3.5" opacity="0.7"/>
+        <line x1="1280" y1="370" x2="1300" y2="460" stroke="#38BDF8" stroke-width="3" opacity="0.6"/>
+        <circle cx="720" cy="360" r="8" fill="#38BDF8" filter="url(#glow)"/>
+        <circle cx="740" cy="480" r="9" fill="#818CF8" filter="url(#glow)"/>
+        <circle cx="790" cy="310" r="10" fill="#60A5FA" filter="url(#glow)"/>
+        <circle cx="810" cy="530" r="10" fill="#A855F7" filter="url(#glow)"/>
+        <circle cx="870" cy="320" r="9" fill="#818CF8" filter="url(#glow)"/>
+        <circle cx="890" cy="520" r="9" fill="#38BDF8" filter="url(#glow)"/>
+        <circle cx="1000" cy="430" r="11" fill="#C084FC" filter="url(#glow)"/>
+        <circle cx="1020" cy="410" r="9" fill="#60A5FA" filter="url(#glow)"/>
+        <circle cx="1120" cy="410" r="8" fill="#818CF8"/>
+        <circle cx="1140" cy="450" r="9" fill="#38BDF8"/>
+        <circle cx="1220" cy="470" r="10" fill="#A855F7" filter="url(#glow)"/>
+        <circle cx="1300" cy="460" r="8" fill="#60A5FA"/>
+      </svg>
+    </div>
+
+    <!-- TOP HEADER -->
+    <header class="erp-topbar">
+      <!-- Top Left Brand Badge -->
+      <div class="brand-left-badge">
+        <div class="brand-logo-circle">
+          <i class="fa-solid fa-hospital"></i>
+        </div>
+        <span class="brand-system-tag">Hospital ERP System</span>
+      </div>
+
+      <!-- Center System Brand Header -->
+      <div class="brand-center">
+        <h1 class="brand-title">HOSPITAL ERP</h1>
+        <p class="brand-subtitle">Hospital &amp; Laboratory Management System</p>
+      </div>
+
+      <!-- Top Right Actions -->
+      <div class="topbar-right">
+        <!-- New Entry Button -->
+        <button class="new-entry-btn" onclick="openUniversalNewModal()">
+          <i class="fa-solid fa-circle-plus"></i>
+          <span>+ New Entry</span>
+        </button>
+
+        <div class="search-pill" onclick="openSearchModal()">
+          <i class="fa-solid fa-magnifying-glass"></i>
+          <span>Search</span>
+        </div>
+        
+        <button class="icon-circle-btn" title="SQL Database Console" onclick="openDrawer('drawer-sql')">
+          <i class="fa-solid fa-database"></i>
+          <span class="notification-indicator"></span>
+        </button>
+      </div>
+    </header>
+
+    <!-- GREETING & HORIZONTAL NAVIGATION ROW -->
+    <div class="greeting-nav-row">
+      <!-- Greeting (Left - Clean & Professional) -->
+      <div class="greeting-block">
+        <h3 class="greeting-subtitle">Clinical Operations Hub</h3>
+        <h2 class="greeting-main">Welcome Back</h2>
+      </div>
+
+      <!-- Horizontal Navigation Dock (Center/Right) -->
+      <nav class="erp-nav-dock">
+        <button class="dock-pill active" onclick="activateNav(this, 'dashboard')">
+          <i class="fa-solid fa-table-cells-large"></i>
+          <span>Dashboard</span>
+          <i class="fa-solid fa-chevron-down nav-arrow"></i>
+        </button>
+
+        <button class="dock-pill" onclick="activateNav(this, 'outdoor')">
+          <i class="fa-solid fa-calendar-check"></i>
+          <span>Outdoor</span>
+          <i class="fa-solid fa-chevron-down nav-arrow"></i>
+        </button>
+
+        <button class="dock-pill" onclick="activateNav(this, 'lab')">
+          <i class="fa-solid fa-vial"></i>
+          <span>Lab Module</span>
+          <i class="fa-solid fa-chevron-down nav-arrow"></i>
+        </button>
+
+        <button class="dock-pill" onclick="activateNav(this, 'prescription')">
+          <i class="fa-solid fa-prescription-bottle-medical"></i>
+          <span>Prescription</span>
+          <i class="fa-solid fa-chevron-down nav-arrow"></i>
+        </button>
+
+        <button class="dock-pill" onclick="activateNav(this, 'users')">
+          <i class="fa-solid fa-users"></i>
+          <span>App Users</span>
+          <i class="fa-solid fa-chevron-down nav-arrow"></i>
+        </button>
+
+        <button class="dock-pill" onclick="activateNav(this, 'master')">
+          <i class="fa-solid fa-layer-group"></i>
+          <span>Master Data</span>
+          <i class="fa-solid fa-chevron-down nav-arrow"></i>
+        </button>
+
+        <!-- Dynamic Universal New Entry Pill -->
+        <button class="dock-pill new-pill" onclick="openUniversalNewModal()">
+          <i class="fa-solid fa-plus"></i>
+          <span>New</span>
+        </button>
+
+        <!-- SQL Console Link -->
+        <button class="dock-pill sql-highlight-pill" onclick="openDrawer('drawer-sql')">
+          <i class="fa-solid fa-terminal"></i>
+          <span>SQL Studio</span>
+        </button>
+
+        <!-- Documentation Report Link -->
+        <a href="/download/report-pdf" target="_blank" class="dock-pill pdf-pill" title="Project Documentation">
+          <i class="fa-solid fa-file-pdf"></i>
+          <span>Documentation</span>
+        </a>
+      </nav>
+    </div>
+
+    <!-- MAIN METRIC CARDS GRID (EXACT 2x3 LAYOUT FROM REFERENCE IMAGE) -->
+    <main class="erp-cards-grid">
+      
+      <!-- CARD 1: PATIENTS TODAY -->
+      <div class="erp-card" onclick="openDrawer('drawer-admissions')">
+        <div class="card-top-title">Patients Today</div>
+        <div class="card-inner-split">
+          <div class="col-big-stat">
+            <div class="stat-number-giant" id="card-patient-adm">05</div>
+            <div class="stat-label-muted">Patient Admission</div>
+          </div>
+          <div class="col-sub-stats">
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Patient Under Treatment</span>
+              <span class="sub-stat-value" id="card-patient-treatment">08</span>
+            </div>
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Patient Discharge</span>
+              <span class="sub-stat-value" id="card-patient-discharge">02</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 2: EXPENSE TODAY -->
+      <div class="erp-card">
+        <div class="card-top-title">Expense Today</div>
+        <div class="card-inner-split">
+          <div class="col-big-stat">
+            <div class="stat-number-large" id="card-expense-today">4270.00</div>
+            <div class="stat-label-muted">Expense</div>
+            <div class="sparkline-wrapper">
+              <svg viewBox="0 0 100 24" class="sparkline-svg">
+                <defs>
+                  <linearGradient id="coralGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+                    <stop offset="0%" stop-color="#F87171" stop-opacity="0.6"/>
+                    <stop offset="100%" stop-color="#EF4444" stop-opacity="0.05"/>
+                  </linearGradient>
+                </defs>
+                <path d="M 0,18 Q 20,4 40,14 T 70,8 T 100,20 L 100,24 L 0,24 Z" fill="url(#coralGrad)"/>
+                <path d="M 0,18 Q 20,4 40,14 T 70,8 T 100,20" fill="none" stroke="#F87171" stroke-width="2.5" stroke-linecap="round"/>
+              </svg>
+            </div>
+          </div>
+          <div class="col-big-stat text-right">
+            <div class="stat-number-large" id="card-expense-month">80430.00</div>
+            <div class="stat-label-muted">This Month</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 3: COLLECTION TODAY -->
+      <div class="erp-card" onclick="openDrawer('drawer-billing')">
+        <div class="card-top-title">Collection Today</div>
+        <div class="card-inner-split">
+          <div class="col-sub-stats">
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Clinic</span>
+              <span class="sub-stat-value" id="card-coll-clinic">6200.00</span>
+            </div>
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Lab</span>
+              <span class="sub-stat-value" id="card-coll-lab">4500.00</span>
+            </div>
+          </div>
+          <div class="col-big-stat text-right">
+            <div class="stat-number-giant" id="card-coll-total">10700.00</div>
+            <div class="stat-label-muted">Total</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 4: DUE (NOT COLLECTED) -->
+      <div class="erp-card" onclick="openDrawer('drawer-billing')">
+        <div class="card-top-title">Due (Not Collected)</div>
+        <div class="card-inner-split">
+          <div class="col-sub-stats">
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Clinic</span>
+              <span class="sub-stat-value" id="card-due-clinic">1500.00</span>
+            </div>
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Lab</span>
+              <span class="sub-stat-value" id="card-due-lab">850.00</span>
+            </div>
+          </div>
+          <div class="col-big-stat text-right">
+            <div class="stat-number-giant" id="card-due-total">2350.00</div>
+            <div class="stat-label-muted">Total Due</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 5: LAB REPORTS TODAY -->
+      <div class="erp-card" onclick="openDrawer('drawer-lab')">
+        <div class="card-top-title">Lab Reports Today</div>
+        <div class="card-inner-split">
+          <div class="col-sub-stats">
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Pending</span>
+              <span class="sub-stat-value highlight-amber" id="card-lab-pending">05</span>
+            </div>
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Sample collection</span>
+              <span class="sub-stat-value" id="card-lab-samples">06</span>
+            </div>
+          </div>
+          <div class="col-big-stat text-right">
+            <div class="stat-number-giant" id="card-lab-delivered">12</div>
+            <div class="stat-label-muted">Delivered / Ready</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- CARD 6: AVAILABLE BED -->
+      <div class="erp-card" onclick="openDrawer('drawer-admissions')">
+        <div class="card-top-title">Available Bed</div>
+        <div class="card-inner-split">
+          <div class="col-big-stat">
+            <div class="stat-number-giant text-emerald" id="card-bed-available">05</div>
+            <div class="stat-label-muted">Available</div>
+          </div>
+          <div class="col-sub-stats">
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">ICU Ward</span>
+              <span class="sub-stat-value">01 Free</span>
+            </div>
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">Deluxe Room</span>
+              <span class="sub-stat-value">02 Free</span>
+            </div>
+            <div class="sub-stat-row">
+              <span class="sub-stat-label">General Ward</span>
+              <span class="sub-stat-value">02 Free</span>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </main>
+
+    <!-- FOOTER STATUS TICKER -->
+    <footer class="erp-footer">
+      <div class="footer-left">
+        <span class="live-dot"></span>
+        <span>DBMS Relational SQL Active • 19 Normalized Tables (3NF) • Online Clinical Services</span>
+      </div>
+      <div class="footer-right">
+        <span>Hospital Management System • Clinical Healthcare Platform</span>
+      </div>
+    </footer>
+
+  </div>
+
+  <!-- =========================================================================
+       DYNAMIC UNIVERSAL "+ NEW ENTRY" MODAL
+       ========================================================================= -->
+  <div class="modal" id="modal-universal-new">
+    <div class="modal-dialog modal-lg">
+      <div class="modal-content">
+        <div class="modal-header">
+          <div class="modal-title-wrap">
+            <i class="fa-solid fa-circle-plus text-primary"></i>
+            <div>
+              <h3>Insert New Database Record</h3>
+              <p class="modal-subtitle">Direct SQL Insertion into normalized relational database</p>
+            </div>
+          </div>
+          <button class="close-btn" onclick="closeModal('modal-universal-new')">&times;</button>
+        </div>
+
+        <div class="modal-body">
+          <!-- Step 1: Entity Selector -->
+          <div class="form-group">
+            <label class="form-label-bold">Select Target Table / Entity:</label>
+            <div class="entity-selector-grid">
+              <button type="button" class="entity-chip active" onclick="selectEntityForm('patient', this)">
+                <i class="fa-solid fa-hospital-user"></i> Patient
+              </button>
+              <button type="button" class="entity-chip" onclick="selectEntityForm('appointment', this)">
+                <i class="fa-solid fa-calendar-check"></i> Appointment
+              </button>
+              <button type="button" class="entity-chip" onclick="selectEntityForm('admission', this)">
+                <i class="fa-solid fa-bed"></i> Admission
+              </button>
+              <button type="button" class="entity-chip" onclick="selectEntityForm('doctor', this)">
+                <i class="fa-solid fa-user-doctor"></i> Doctor
+              </button>
+              <button type="button" class="entity-chip" onclick="selectEntityForm('room', this)">
+                <i class="fa-solid fa-door-open"></i> Room / Bed
+              </button>
+              <button type="button" class="entity-chip" onclick="selectEntityForm('department', this)">
+                <i class="fa-solid fa-building"></i> Department
+              </button>
+              <button type="button" class="entity-chip" onclick="selectEntityForm('labtest', this)">
+                <i class="fa-solid fa-vial"></i> Lab Diagnostic
+              </button>
+            </div>
+          </div>
+
+          <hr class="form-divider">
+
+          <!-- Dynamic Form Container -->
+          <form id="form-dynamic-entry" onsubmit="handleUniversalFormSubmit(event)">
+            <div id="dynamic-fields-container">
+              <!-- Form fields injected dynamically by JavaScript -->
+            </div>
+            
+            <div class="modal-footer mt-4">
+              <button type="button" class="btn-xs btn-outline" onclick="closeModal('modal-universal-new')">Cancel</button>
+              <button type="submit" class="btn-xs btn-primary" id="btn-save-entry">
+                <i class="fa-solid fa-database"></i> Insert Record to Database
+              </button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- =========================================================================
+       SIDE FLYOUT DRAWER FOR REAL SQL DATA
+       ========================================================================= -->
+  <div class="drawer-overlay" id="drawer-overlay" onclick="closeAllDrawers()"></div>
+
+  <!-- DRAWER: OUTDOOR / APPOINTMENTS -->
+  <aside class="slide-drawer" id="drawer-outdoor">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fa-solid fa-calendar-check text-primary"></i>
+        <h3>Outdoor / OPD Appointments (View: <code>v_doctor_appointments</code>)</h3>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn-xs btn-primary" onclick="openModal('modal-book-appt')">+ Book Appointment</button>
+        <button class="drawer-close-btn" onclick="closeAllDrawers()">&times;</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <div class="table-wrap">
+        <table class="erp-table" id="table-outdoor">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Time</th>
+              <th>Reason</th>
+              <th>Status</th>
+              <th>Actions</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-outdoor">
+            <tr><td colspan="7">Loading appointments...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+  <!-- DRAWER: LAB MODULE -->
+  <aside class="slide-drawer" id="drawer-lab">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fa-solid fa-vial text-primary"></i>
+        <h3>Laboratory Diagnostic Worklist (View: <code>v_pending_lab_reports</code>)</h3>
+      </div>
+      <button class="drawer-close-btn" onclick="closeAllDrawers()">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Result ID</th>
+              <th>Patient</th>
+              <th>Investigation</th>
+              <th>Category</th>
+              <th>Date</th>
+              <th>Diagnostic Findings</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-lab">
+            <tr><td colspan="7">Loading lab investigations...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+  <!-- DRAWER: ADMISSIONS & AVAILABLE BEDS -->
+  <aside class="slide-drawer" id="drawer-admissions">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fa-solid fa-bed text-primary"></i>
+        <h3>Hospital In-Patient Wards &amp; Bed Inventory</h3>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn-xs btn-accent" onclick="openModal('modal-admit')">+ Admit Patient</button>
+        <button class="drawer-close-btn" onclick="closeAllDrawers()">&times;</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <h4 class="drawer-section-h">Room &amp; Bed Occupancy Status (Trigger <code>trg_room_occupied_on_admission</code>)</h4>
+      <div class="drawer-rooms-grid" id="drawer-rooms-grid">
+        <!-- Room cards -->
+      </div>
+      <h4 class="drawer-section-h mt-4">Active In-Patients (View: <code>v_admitted_patients_summary</code>)</h4>
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Adm ID</th>
+              <th>Room</th>
+              <th>Patient</th>
+              <th>Doctor</th>
+              <th>Admission Date</th>
+              <th>Diagnosis</th>
+              <th>Status</th>
+              <th>Action</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-admissions">
+            <tr><td colspan="8">Loading admissions...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+  <!-- DRAWER: BILLING & COLLECTIONS -->
+  <aside class="slide-drawer" id="drawer-billing">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fa-solid fa-file-invoice-dollar text-primary"></i>
+        <h3>Hospital Financial Ledger (View: <code>v_patient_billing_summary</code>)</h3>
+      </div>
+      <button class="drawer-close-btn" onclick="closeAllDrawers()">&times;</button>
+    </div>
+    <div class="drawer-body">
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>Bill #</th>
+              <th>Patient</th>
+              <th>Date</th>
+              <th>Gross</th>
+              <th>Discount</th>
+              <th>Net Amount</th>
+              <th>Total Paid</th>
+              <th>Balance Due</th>
+              <th>Status</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-billing">
+            <tr><td colspan="9">Loading billing ledger...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+  <!-- DRAWER: APP USERS / PATIENT DIRECTORY -->
+  <aside class="slide-drawer" id="drawer-users">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fa-solid fa-users text-primary"></i>
+        <h3>App Users &amp; Patient Health Records</h3>
+      </div>
+      <div class="drawer-actions">
+        <button class="btn-xs btn-primary" onclick="openModal('modal-add-patient')">+ Register Patient</button>
+        <button class="drawer-close-btn" onclick="closeAllDrawers()">&times;</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <div class="table-wrap">
+        <table class="erp-table">
+          <thead>
+            <tr>
+              <th>ID</th>
+              <th>Name</th>
+              <th>Gender / DOB</th>
+              <th>Blood</th>
+              <th>Phone</th>
+              <th>Allergies</th>
+              <th>Address</th>
+            </tr>
+          </thead>
+          <tbody id="tbody-users">
+            <tr><td colspan="7">Loading registered patients...</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </aside>
+
+  <!-- DRAWER: SQL QUERY STUDIO -->
+  <aside class="slide-drawer" id="drawer-sql">
+    <div class="drawer-header">
+      <div class="drawer-title">
+        <i class="fa-solid fa-database text-primary"></i>
+        <h3>Live SQL Query Studio</h3>
+      </div>
+      <div class="drawer-actions">
+        <a href="/download/report-pdf" target="_blank" class="btn-xs btn-primary">
+          <i class="fa-solid fa-file-pdf"></i> Documentation PDF
+        </a>
+        <button class="drawer-close-btn" onclick="closeAllDrawers()">&times;</button>
+      </div>
+    </div>
+    <div class="drawer-body">
+      <div class="sql-presets-dock">
+        <span class="preset-label">Pre-configured SQL Views &amp; Execution Plans:</span>
+        <button class="preset-chip" onclick="runPresetQuery('SELECT * FROM v_doctor_appointments LIMIT 5;')">v_doctor_appointments</button>
+        <button class="preset-chip" onclick="runPresetQuery('SELECT * FROM v_admitted_patients_summary;')">v_admitted_patients_summary</button>
+        <button class="preset-chip" onclick="runPresetQuery('SELECT * FROM v_department_analytics;')">v_department_analytics</button>
+        <button class="preset-chip" onclick="runPresetQuery('SELECT * FROM v_patient_billing_summary;')">v_patient_billing_summary</button>
+        <button class="preset-chip" onclick="runPresetQuery('EXPLAIN QUERY PLAN SELECT * FROM APPOINTMENT WHERE Doctor_id = 101 AND Appointment_date = \'2026-10-21\';')">EXPLAIN Query Index Plan</button>
+      </div>
+
+      <div class="sql-input-wrap">
+        <textarea id="sql-query-input" rows="4">SELECT * FROM v_doctor_appointments LIMIT 5;</textarea>
+        <div class="sql-controls-bar">
+          <button class="btn-xs btn-primary" onclick="executeCustomSql()">
+            <i class="fa-solid fa-play"></i> Run Query
+          </button>
+          <span class="sql-latency-tag" id="sql-status-badge">Ready</span>
+        </div>
+      </div>
+
+      <div class="table-wrap mt-3">
+        <div id="sql-result-output">
+          <p class="text-muted">Click "Run Query" or any preset view button above to evaluate SQL output.</p>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+  <!-- MODAL: BOOK APPOINTMENT -->
+  <div class="modal" id="modal-book-appt">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-calendar-plus text-primary"></i> Book Outdoor Appointment</h3>
+          <button class="close-btn" onclick="closeModal('modal-book-appt')">&times;</button>
+        </div>
+        <form id="form-book-appt" onsubmit="handleBookAppt(event)">
+          <div class="modal-body">
+            
+            <div class="patient-mode-toggle">
+              <label class="radio-pill active" onclick="togglePatientMode('appt', 'existing')">
+                <input type="radio" name="appt_pat_mode" value="existing" checked> Existing Patient
+              </label>
+              <label class="radio-pill" onclick="togglePatientMode('appt', 'new')">
+                <input type="radio" name="appt_pat_mode" value="new"> ✨ Enter New Patient
+              </label>
+            </div>
+
+            <div class="form-group" id="appt-existing-patient-group">
+              <label>Select Patient from Records:</label>
+              <select id="appt-patient-select"></select>
+            </div>
+
+            <div class="inline-new-patient-box" id="appt-new-patient-group" style="display:none;">
+              <div class="form-row">
+                <div class="form-group col">
+                  <label>Patient Full Name *:</label>
+                  <input type="text" id="appt-new-name" placeholder="e.g. Ramesh Varma">
+                </div>
+                <div class="form-group col">
+                  <label>Phone Number *:</label>
+                  <input type="tel" id="appt-new-phone" placeholder="98XXXXXXXX">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col">
+                  <label>Gender:</label>
+                  <select id="appt-new-gender">
+                    <option value="Male">Male</option>
+                    <option value="Female">Female</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group col">
+                  <label>Blood Group:</label>
+                  <select id="appt-new-blood">
+                    <option value="O+">O+</option>
+                    <option value="A+">A+</option>
+                    <option value="B+">B+</option>
+                    <option value="AB+">AB+</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Select Consulting Doctor:</label>
+              <select id="appt-doctor-select" required></select>
+            </div>
+            <div class="form-row">
+              <div class="form-group col">
+                <label>Date:</label>
+                <input type="date" id="appt-date" required>
+              </div>
+              <div class="form-group col">
+                <label>Time Slot:</label>
+                <input type="time" id="appt-time" required value="10:00">
+              </div>
+            </div>
+            <div class="form-group">
+              <label>Reason / Clinical Symptoms:</label>
+              <textarea id="appt-reason" rows="2" placeholder="e.g. Quarterly cardiac review" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-xs btn-outline" onclick="closeModal('modal-book-appt')">Cancel</button>
+            <button type="submit" class="btn-xs btn-primary">Confirm Appointment</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <!-- MODAL: ADMIT PATIENT -->
+  <div class="modal" id="modal-admit">
+    <div class="modal-dialog">
+      <div class="modal-content">
+        <div class="modal-header">
+          <h3><i class="fa-solid fa-bed text-primary"></i> In-Patient Ward Admission</h3>
+          <button class="close-btn" onclick="closeModal('modal-admit')">&times;</button>
+        </div>
+        <form id="form-admit" onsubmit="handleAdmitPatient(event)">
+          <div class="modal-body">
+            
+            <div class="patient-mode-toggle">
+              <label class="radio-pill active" onclick="togglePatientMode('admit', 'existing')">
+                <input type="radio" name="admit_pat_mode" value="existing" checked> Existing Patient
+              </label>
+              <label class="radio-pill" onclick="togglePatientMode('admit', 'new')">
+                <input type="radio" name="admit_pat_mode" value="new"> ✨ Enter New Patient
+              </label>
+            </div>
+
+            <div class="form-group" id="admit-existing-patient-group">
+              <label>Select Patient from Records:</label>
+              <select id="admit-patient-select"></select>
+            </div>
+
+            <div class="inline-new-patient-box" id="admit-new-patient-group" style="display:none;">
+              <div class="form-row">
+                <div class="form-group col">
+                  <label>Patient Full Name *:</label>
+                  <input type="text" id="admit-new-name" placeholder="e.g. Sunita Devi">
+                </div>
+                <div class="form-group col">
+                  <label>Phone Number *:</label>
+                  <input type="tel" id="admit-new-phone" placeholder="98XXXXXXXX">
+                </div>
+              </div>
+              <div class="form-row">
+                <div class="form-group col">
+                  <label>Gender:</label>
+                  <select id="admit-new-gender">
+                    <option value="Female">Female</option>
+                    <option value="Male">Male</option>
+                    <option value="Other">Other</option>
+                  </select>
+                </div>
+                <div class="form-group col">
+                  <label>Blood Group:</label>
+                  <select id="admit-new-blood">
+                    <option value="B+">B+</option>
+                    <option value="O+">O+</option>
+                    <option value="A+">A+</option>
+                    <option value="AB+">AB+</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <div class="form-group">
+              <label>Attending Doctor:</label>
+              <select id="admit-doctor-select" required></select>
+            </div>
+            <div class="form-group">
+              <label>Available Room / Ward (Auto-updated by Trigger):</label>
+              <select id="admit-room-select" required></select>
+            </div>
+            <div class="form-group">
+              <label>Admission Diagnosis:</label>
+              <textarea id="admit-diagnosis" rows="2" placeholder="e.g. Acute Coronary Syndrome, Pre-Op Observation" required></textarea>
+            </div>
+          </div>
+          <div class="modal-footer">
+            <button type="button" class="btn-xs btn-outline" onclick="closeModal('modal-admit')">Cancel</button>
+            <button type="submit" class="btn-xs btn-accent">Admit Patient</button>
+          </div>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="/static/app.js"></script>
+</body>
+</html>
