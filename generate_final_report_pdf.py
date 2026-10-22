@@ -1,7 +1,6 @@
 import os
 import sys
 import sqlite3
-from PIL import Image as PILImage
 from reportlab.lib.pagesizes import letter
 from reportlab.lib import colors
 from reportlab.lib.styles import getSampleStyleSheet, ParagraphStyle
@@ -27,6 +26,7 @@ class NumberedCanvas(canvas.Canvas):
 
     def save(self):
         num_pages = len(self._saved_page_states)
+        print(f"[NumberedCanvas] Total pages rendered: {num_pages}")
         for state in self._saved_page_states:
             self.__dict__.update(state)
             self.draw_page_decorations(num_pages)
@@ -41,26 +41,26 @@ class NumberedCanvas(canvas.Canvas):
         # Don't draw header/footer on cover page (page 1)
         if self._pageNumber > 1:
             # Header
-            self.drawString(54, 750, "Hospital Management System — Final DBMS Project Report (Steps 1 to 13)")
-            self.drawRightString(558, 750, "Madhav Baheti | 25STUCHH010661")
-            self.setStrokeColor(colors.HexColor("#E2E8F0"))
+            self.drawString(45, 752, "Hospital Management System — Comprehensive DBMS Project Report")
+            self.drawRightString(567, 752, "Madhav Baheti | 25STUCHH010661")
+            self.setStrokeColor(colors.HexColor("#CBD5E1"))
             self.setLineWidth(0.75)
-            self.line(54, 742, 558, 742)
+            self.line(45, 744, 567, 744)
             
             # Footer
-            self.line(54, 45, 558, 45)
-            self.drawString(54, 32, "IcfaiTech, IFHE Hyderabad | B.Tech CSE (AI&DS) | Guide: Dr. Meena Kumari Mam")
-            self.drawRightString(558, 32, f"Page {self._pageNumber} of {page_count}")
+            self.line(45, 42, 567, 42)
+            self.drawString(45, 30, "Faculty of Science & Technology | B.Tech CSE (AI&DS) | Guide: Dr. Meena Kumari Mam")
+            self.drawRightString(567, 30, f"Page {self._pageNumber} of {page_count}")
         self.restoreState()
 
 def build_final_report():
     doc = SimpleDocTemplate(
         PDF_OUTPUT_PATH,
         pagesize=letter,
-        leftMargin=50,
-        rightMargin=50,
-        topMargin=50,
-        bottomMargin=50
+        leftMargin=45,
+        rightMargin=45,
+        topMargin=46,
+        bottomMargin=46
     )
 
     styles = getSampleStyleSheet()
@@ -70,9 +70,9 @@ def build_final_report():
         'CoverTitle',
         parent=styles['Normal'],
         fontName='Helvetica-Bold',
-        fontSize=24,
-        leading=28,
-        textColor=colors.HexColor("#1A365D"),
+        fontSize=23,
+        leading=27,
+        textColor=colors.HexColor("#0F172A"),
         alignment=1,
         spaceAfter=8
     )
@@ -81,22 +81,22 @@ def build_final_report():
         'CoverSubTitle',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=12,
+        fontSize=11.5,
         leading=16,
-        textColor=colors.HexColor("#2B6CB0"),
+        textColor=colors.HexColor("#2563EB"),
         alignment=1,
-        spaceAfter=15
+        spaceAfter=14
     )
 
     h1_style = ParagraphStyle(
         'Heading1_Custom',
         parent=styles['Heading1'],
         fontName='Helvetica-Bold',
-        fontSize=13.5,
-        leading=17,
-        textColor=colors.HexColor("#1A365D"),
-        spaceBefore=12,
-        spaceAfter=5,
+        fontSize=13,
+        leading=16.5,
+        textColor=colors.HexColor("#0F172A"),
+        spaceBefore=11,
+        spaceAfter=4,
         keepWithNext=True
     )
 
@@ -104,9 +104,9 @@ def build_final_report():
         'Heading2_Custom',
         parent=styles['Heading2'],
         fontName='Helvetica-Bold',
-        fontSize=10.5,
-        leading=14,
-        textColor=colors.HexColor("#2B6CB0"),
+        fontSize=10,
+        leading=13.5,
+        textColor=colors.HexColor("#1D4ED8"),
         spaceBefore=8,
         spaceAfter=3,
         keepWithNext=True
@@ -116,27 +116,36 @@ def build_final_report():
         'Body_Custom',
         parent=styles['BodyText'],
         fontName='Helvetica',
-        fontSize=8.8,
-        leading=12.5,
-        textColor=colors.HexColor("#2D3748"),
-        spaceAfter=5
+        fontSize=8.6,
+        leading=12.2,
+        textColor=colors.HexColor("#1E293B"),
+        spaceAfter=4.5
     )
 
     bullet_style = ParagraphStyle(
         'Bullet_Custom',
         parent=body_style,
-        leftIndent=14,
+        leftIndent=13,
         firstLineIndent=-9,
-        spaceAfter=3
+        spaceAfter=2.5
+    )
+
+    code_title_style = ParagraphStyle(
+        'CodeTitle',
+        parent=styles['Normal'],
+        fontName='Helvetica-Bold',
+        fontSize=8,
+        leading=10,
+        textColor=colors.HexColor("#0F172A")
     )
 
     code_style = ParagraphStyle(
         'Code_Custom',
         parent=styles['Code'],
         fontName='Courier',
-        fontSize=7.4,
-        leading=9.8,
-        textColor=colors.HexColor("#1A202C")
+        fontSize=7.2,
+        leading=9.4,
+        textColor=colors.HexColor("#0F172A")
     )
 
     th_style = ParagraphStyle(
@@ -152,10 +161,32 @@ def build_final_report():
         'TD_Custom',
         parent=styles['Normal'],
         fontName='Helvetica',
-        fontSize=7.5,
+        fontSize=7.4,
         leading=9.5,
-        textColor=colors.HexColor("#2D3748")
+        textColor=colors.HexColor("#1E293B")
     )
+
+    def make_code_card(title, sql_text, note=""):
+        content = [
+            Paragraph(f"<b><font color='#1D4ED8'>SQL &bull;</font> {title}</b>", code_title_style),
+            Spacer(1, 3),
+            Paragraph(f"<pre>{sql_text}</pre>", code_style)
+        ]
+        if note:
+            content.extend([
+                Spacer(1, 2),
+                Paragraph(f"<font color='#64748B'><i>Note: {note}</i></font>", ParagraphStyle('Note', parent=body_style, fontSize=7, leading=8.5))
+            ])
+        t = Table([[content]], colWidths=[522])
+        t.setStyle(TableStyle([
+            ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
+            ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E1")),
+            ('TOPPADDING', (0,0), (-1,-1), 5),
+            ('BOTTOMPADDING', (0,0), (-1,-1), 5),
+            ('LEFTPADDING', (0,0), (-1,-1), 8),
+            ('RIGHTPADDING', (0,0), (-1,-1), 8),
+        ]))
+        return t
 
     story = []
 
@@ -165,30 +196,30 @@ def build_final_report():
     logo_path = os.path.join(ASSETS_DIR, "image1.png")
     if os.path.exists(logo_path):
         story.append(Image(logo_path, width=2.4*inch, height=0.87*inch))
-        story.append(Spacer(1, 10))
+        story.append(Spacer(1, 8))
 
-    story.append(Paragraph("FACULTY OF SCIENCE &amp; TECHNOLOGY (FST)", ParagraphStyle('Inst', parent=subtitle_style, fontSize=13, fontName='Helvetica-Bold', textColor=colors.HexColor("#1A365D"))))
-    story.append(Paragraph("ICFAI FOUNDATION FOR HIGHER EDUCATION (IFHE), HYDERABAD", ParagraphStyle('InstSub', parent=subtitle_style, fontSize=10, textColor=colors.HexColor("#4A5568"))))
-    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#C53030"), spaceBefore=4, spaceAfter=18))
+    story.append(Paragraph("FACULTY OF SCIENCE &amp; TECHNOLOGY (FST)", ParagraphStyle('Inst', parent=subtitle_style, fontSize=13, fontName='Helvetica-Bold', textColor=colors.HexColor("#0F172A"))))
+    story.append(Paragraph("DEPARTMENT OF COMPUTER SCIENCE &amp; ENGINEERING", ParagraphStyle('InstSub', parent=subtitle_style, fontSize=10, textColor=colors.HexColor("#475569"))))
+    story.append(HRFlowable(width="100%", thickness=2, color=colors.HexColor("#DC2626"), spaceBefore=3, spaceAfter=16))
 
-    story.append(Paragraph("DATABASE MANAGEMENT SYSTEMS (DBMS) — MINI PROJECT", ParagraphStyle('Course', parent=subtitle_style, fontSize=11, fontName='Helvetica-Bold', textColor=colors.HexColor("#2B6CB0"))))
-    story.append(Paragraph("COMPREHENSIVE FINAL PROJECT REPORT (STEPS 1 TO 13)", ParagraphStyle('ReportSub', parent=subtitle_style, fontSize=10.5, fontName='Helvetica-Bold', textColor=colors.HexColor("#718096"))))
+    story.append(Paragraph("DATABASE MANAGEMENT SYSTEMS (DBMS) &mdash; COURSE PROJECT", ParagraphStyle('Course', parent=subtitle_style, fontSize=11, fontName='Helvetica-Bold', textColor=colors.HexColor("#1D4ED8"))))
+    story.append(Paragraph("COMPREHENSIVE FINAL PROJECT REPORT", ParagraphStyle('ReportSub', parent=subtitle_style, fontSize=10.5, fontName='Helvetica-Bold', textColor=colors.HexColor("#64748B"))))
     story.append(Spacer(1, 6))
     story.append(Paragraph("HOSPITAL MANAGEMENT SYSTEM", title_style))
-    story.append(Paragraph("An Enterprise Relational Database Platform with ER Modeling, 3NF Normalization,<br/>ACID Concurrency Control, Advanced SQL Features &amp; Cloud Web Application", subtitle_style))
+    story.append(Paragraph("A Centralized Relational Database Architecture with ER Modeling, 3NF Normalization,<br/>ACID Concurrency Control, Advanced SQL Engineering &amp; Clinical Management Platform", subtitle_style))
 
-    story.append(Spacer(1, 15))
+    story.append(Spacer(1, 14))
 
     # Student / Faculty Box Table
     meta_data = [
         [Paragraph("<b>Submitted To:</b>", body_style), Paragraph("<b>Submitted By:</b>", body_style)],
-        [Paragraph("<b>Dr. Meena Kumari Mam</b><br/>Faculty, Department of CSE<br/>IcfaiTech, IFHE Hyderabad", body_style),
+        [Paragraph("<b>Dr. Meena Kumari Mam</b><br/>Faculty, Department of CSE<br/>Faculty of Science &amp; Technology", body_style),
          Paragraph("<b>Madhav Baheti</b><br/><b>Enrollment No:</b> 25STUCHH010661<br/><b>Degree:</b> B.Tech CSE (AI &amp; DS)<br/><b>Class of:</b> 2025–2029 | <b>Section:</b> E<br/><b>Academic Year:</b> 2026–27", body_style)]
     ]
-    t_meta = Table(meta_data, colWidths=[240, 268])
+    t_meta = Table(meta_data, colWidths=[250, 272])
     t_meta.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F7FAFC")),
-        ('BOX', (0,0), (-1,-1), 1.2, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
+        ('BOX', (0,0), (-1,-1), 1.2, colors.HexColor("#CBD5E1")),
         ('INNERGRID', (0,0), (-1,-1), 0.5, colors.HexColor("#E2E8F0")),
         ('TOPPADDING', (0,0), (-1,-1), 8),
         ('BOTTOMPADDING', (0,0), (-1,-1), 8),
@@ -197,17 +228,17 @@ def build_final_report():
     ]))
     story.append(t_meta)
 
-    story.append(Spacer(1, 18))
+    story.append(Spacer(1, 16))
 
     # Executive Abstract box
     abstract_text = """<b>Executive Abstract:</b><br/>
-    Healthcare institutions generate heterogeneous, time-critical transactional data spanning patient demographics, outpatient consultations, clinical diagnoses, surgical admissions, ward bed allocations, laboratory investigations, pharmaceutical prescriptions, and automated financial settlements. When managed manually or through disparate silos, healthcare operations suffer from appointment overlaps, uncoordinated bed assignments, billing discrepancies, and medical history fragmentation.<br/><br/>
-    This comprehensive report presents the complete end-to-end design, implementation, optimization, and validation of the <b>Hospital Management System (HMS)</b> in strict compliance with the 13-step IcfaiTech DBMS Project Guidelines. The project covers: (1) Domain Problem Definition and Objective Formulation; (2) Detailed Functional and Non-Functional Requirements Analysis; (3) Entity-Relationship (ER) Modeling with 17 clinical entities; (4) Formal Relational Schema Decomposition into Third Normal Form (3NF); (5) SQL Implementation (DDL/DML) enforcing primary keys, foreign keys, and domain constraints; (6) Advanced SQL Features including analytical views, ACID-compliant stored procedures, autonomous ECA triggers, and multi-table joins; (7) Transaction Management with row-level locks and isolation levels; (8) B-Tree Indexing with execution plan cost analysis; (9) System Validation Test Suites; and (10) A modern full-stack Hospital ERP web application connected to the SQL database engine and deployed live on cloud infrastructure."""
+    Modern healthcare facilities process diverse, mission-critical operational data spanning outpatient appointments, inpatient hospitalizations, surgical bed assignments, diagnostic laboratory testing, pharmaceutical prescriptions, and financial reconciliations. When recorded manually or through isolated spreadsheets, hospitals face double-booking conflicts, delayed emergency admissions, prescription errors, and billing discrepancies.<br/><br/>
+    This report documents the end-to-end engineering of the <b>Hospital Management System (HMS)</b> database. Structured strictly according to the curriculum guidelines, it encompasses: (1) Domain Problem Definition; (2) Functional and Non-Functional Requirements Analysis; (3) Conceptual Entity-Relationship (ER) Modeling with 17 clinical entities; (4) Mathematical Relational Normalization Proof (1NF &rarr; 2NF &rarr; 3NF); (5) SQL Implementation (DDL/DML) enforcing primary keys, foreign keys, and domain constraints; (6) Advanced SQL Features including analytical views, stored procedures, autonomous ECA triggers, and complex multi-table joins; (7) ACID Transaction Management with concurrency controls and row-level locking; (8) Query Optimization using B-Tree indexing and EXPLAIN execution plan cost evaluation; (9) System Integrity Validation Test Suites; (10) Complete Relational Data Dictionary; and (11) A modern single-page Hospital ERP Web Application connected to the live SQL database engine."""
     
-    t_abs = Table([[Paragraph(abstract_text, body_style)]], colWidths=[508])
+    t_abs = Table([[Paragraph(abstract_text, body_style)]], colWidths=[522])
     t_abs.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#EDF2F7")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F1F5F9")),
+        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E1")),
         ('TOPPADDING', (0,0), (-1,-1), 8),
         ('BOTTOMPADDING', (0,0), (-1,-1), 8),
         ('LEFTPADDING', (0,0), (-1,-1), 12),
@@ -221,115 +252,115 @@ def build_final_report():
     # PAGE 2: STEPS 1 TO 4 — DOMAIN ANALYSIS & REQUIREMENTS
     # ==========================================================================
     story.append(Paragraph("STEP 1: Title Selection", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("<b>Project Title:</b> Hospital Management System (HMS) — An Enterprise Relational Clinical Management &amp; Laboratory Platform.", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("<b>Project Title:</b> Hospital Management System (HMS) &mdash; Clinical Operations &amp; Laboratory Database Platform.", body_style))
 
     story.append(Paragraph("STEP 2: Problem Statement", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""Managing modern multi-specialty hospitals entails processing massive volumes of transactional data daily. Legacy paperwork and decentralized computer records introduce acute administrative bottlenecks:
-• <b>Appointment Collisions:</b> Manual registers fail to detect when two patients are scheduled with the same specialist at the exact same hour.
-• <b>Bed Allocation Inefficiencies:</b> Admitting nurses cannot inspect real-time bed availability across ICU, Deluxe, and General wards, leading to delays in critical trauma triage.
-• <b>Prescription &amp; Diagnostic Disconnect:</b> Pharmacy counters and pathology laboratories operate disconnected from outpatient records, increasing medication error risks.
-• <b>Billing Inconsistencies:</b> Manually tallying daily room stay charges, specialist fees, diagnostic test fees, and insurance discounts frequently leads to revenue leakage or billing errors.
-A centralized, ACID-compliant relational database management system is essential to enforce referential integrity, eliminate data redundancy, automate state transitions, and provide secure role-based clinical views.""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""Managing hospitals involves handling interconnected healthcare information across patients, doctors, appointments, admissions, treatments, medications, tests, rooms, and payments. Manual or fragmented records lead to severe operational challenges:
+• <b>Appointment Overlaps:</b> Inability to detect duplicate slot bookings for the same doctor at the same hour.
+• <b>Bed Management Inefficiencies:</b> Lack of real-time visibility into bed occupancy across ICU, Deluxe, and General wards causes delays in critical admissions.
+• <b>Prescription &amp; Diagnostic Disconnect:</b> Fragmented lab and pharmacy data leads to delayed test results and medication mismatches.
+• <b>Billing Errors:</b> Manually combining room charges, doctor consultations, lab tests, and discounts results in revenue leakage.
+A centralized, ACID-compliant relational database management system is required to maintain referential integrity, eliminate redundancy, and ensure secure, role-based data access.""", body_style))
 
     story.append(Paragraph("STEP 3: Objectives &amp; Scope", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("• <b>Centralized Patient Records:</b> Maintain lifetime electronic health records (demographics, blood group, allergies, past diagnoses).", bullet_style))
-    story.append(Paragraph("• <b>Automated Doctor Scheduling:</b> Coordinate doctor rosters and prevent double-booking using autonomous SQL triggers.", bullet_style))
-    story.append(Paragraph("• <b>In-Patient Admission &amp; Bed Tracking:</b> Manage real-time room inventory (Available, Occupied, Maintenance) across all hospital wards.", bullet_style))
-    story.append(Paragraph("• <b>Diagnostic &amp; Pharmacy Integration:</b> Link diagnostic test orders, pathology results, and medication dosage regimens directly to patient consultations.", bullet_style))
-    story.append(Paragraph("• <b>Automated Financial Reconciliation:</b> Compute net billing, track insurance and UPI payments, and prevent negative balance balances.", bullet_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("• <b>Centralized Patient Records:</b> Store comprehensive patient profiles including demographics, medical history, blood group, and allergies.", bullet_style))
+    story.append(Paragraph("• <b>Automated Doctor Scheduling:</b> Coordinate doctor availability rosters and prevent overlapping appointments using SQL triggers.", bullet_style))
+    story.append(Paragraph("• <b>In-Patient Admission &amp; Room Tracking:</b> Maintain real-time bed occupancy status (Available, Occupied, Maintenance).", bullet_style))
+    story.append(Paragraph("• <b>Diagnostic &amp; Pharmacy Integration:</b> Link diagnostic test orders, lab results, and pharmacy prescriptions directly to patients.", bullet_style))
+    story.append(Paragraph("• <b>Automated Financial Accounting:</b> Accurately compute room stay charges, discounts, net billing amounts, and payments.", bullet_style))
 
     story.append(Paragraph("STEP 4: Requirements Gathering", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
     
     req_data = [
         [Paragraph("Category", th_style), Paragraph("Requirement Specification", th_style), Paragraph("Implementation Mechanism", th_style)],
-        [Paragraph("FR-01: Patient EMR", td_style), Paragraph("Register new patients, capture demographics, contact details, and vital allergy warnings.", td_style), Paragraph("PATIENT table with UNIQUE phone constraints", td_style)],
-        [Paragraph("FR-02: Outpatient Scheduling", td_style), Paragraph("Book consultation slots; prevent doctor timeslot collisions automatically.", td_style), Paragraph("APPOINTMENT table + BEFORE INSERT trigger", td_style)],
-        [Paragraph("FR-03: In-Patient Admissions", td_style), Paragraph("Admit patients to available beds; mutate room status to 'Occupied' instantly.", td_style), Paragraph("ADMISSION + ROOM tables + AFTER INSERT trigger", td_style)],
-        [Paragraph("FR-04: Diagnostics &amp; Tests", td_style), Paragraph("Record diagnostic investigations, normal reference ranges, and test results.", td_style), Paragraph("TEST &amp; TEST_RESULT tables with foreign keys", td_style)],
-        [Paragraph("FR-05: Pharmacy Prescriptions", td_style), Paragraph("Issue structured prescriptions detailing medicine, dosage form, frequency, and duration.", td_style), Paragraph("PRESCRIPTION &amp; PRESCRIPTION_ITEM tables", td_style)],
-        [Paragraph("FR-06: Billing &amp; Invoicing", td_style), Paragraph("Generate consolidated bills factoring room days, consultations, and test charges.", td_style), Paragraph("BILL &amp; PAYMENT tables with auto Net_amount calculation", td_style)],
-        [Paragraph("NFR-01: Data Integrity", td_style), Paragraph("Zero orphan tuples; strict primary and foreign key constraints on all operations.", td_style), Paragraph("Relational foreign keys with ON DELETE RESTRICT / SET NULL", td_style)],
-        [Paragraph("NFR-02: Concurrency &amp; ACID", td_style), Paragraph("Support simultaneous appointments and bed allocation without lost updates or dirty reads.", td_style), Paragraph("ACID transaction blocks with row-level locks", td_style)],
-        [Paragraph("NFR-03: High Performance", td_style), Paragraph("Sub-millisecond query response time on high-frequency clinical searches.", td_style), Paragraph("Secondary B-Tree composite indexes", td_style)],
+        [Paragraph("FR-01: Patient EMR", td_style), Paragraph("Register patients with demographics, unique contact number, and allergy warnings.", td_style), Paragraph("PATIENT table with UNIQUE phone constraints", td_style)],
+        [Paragraph("FR-02: Outpatient Scheduling", td_style), Paragraph("Schedule consultation slots; automatically block double-booking.", td_style), Paragraph("APPOINTMENT table + BEFORE INSERT trigger", td_style)],
+        [Paragraph("FR-03: In-Patient Admissions", td_style), Paragraph("Admit patients to available beds; immediately update room status to 'Occupied'.", td_style), Paragraph("ADMISSION + ROOM tables + AFTER INSERT trigger", td_style)],
+        [Paragraph("FR-04: Diagnostics &amp; Tests", td_style), Paragraph("Track lab investigations, reference ranges, and diagnostic findings.", td_style), Paragraph("TEST &amp; TEST_RESULT tables with foreign keys", td_style)],
+        [Paragraph("FR-05: Pharmacy Prescriptions", td_style), Paragraph("Prescribe medications with dosage, frequency, and duration.", td_style), Paragraph("PRESCRIPTION &amp; PRESCRIPTION_ITEM tables", td_style)],
+        [Paragraph("FR-06: Billing &amp; Invoicing", td_style), Paragraph("Itemize room charges, consults, and tests; automatically calculate net totals.", td_style), Paragraph("BILL &amp; PAYMENT tables with trigger checks", td_style)],
+        [Paragraph("NFR-01: Data Integrity", td_style), Paragraph("Enforce primary/foreign keys and cascading rules across all relations.", td_style), Paragraph("Relational foreign keys with ON DELETE RESTRICT / SET NULL", td_style)],
+        [Paragraph("NFR-02: Concurrency &amp; ACID", td_style), Paragraph("Support multi-user concurrent operations without race conditions.", td_style), Paragraph("ACID transaction blocks with row-level locks", td_style)],
+        [Paragraph("NFR-03: Performance", td_style), Paragraph("Sub-millisecond query response on high-frequency clinical searches.", td_style), Paragraph("Secondary B-Tree composite indexes", td_style)],
     ]
-    t_req = Table(req_data, colWidths=[90, 260, 158])
+    t_req = Table(req_data, colWidths=[92, 270, 160])
     t_req.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 3),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
     ]))
     story.append(t_req)
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 3: STEP 5 — ENTITY-RELATIONSHIP (ER) MODELING
+    # PAGE 3: STEP 5 — CONCEPTUAL ER MODELING
     # ==========================================================================
     story.append(Paragraph("STEP 5: Entity-Relationship (ER) Modeling", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""The conceptual schema of the Hospital Management System is modeled through 17 entities capturing clinical, operational, and financial interactions. The diagram below represents the complete architectural blueprint detailing primary keys (PK), foreign keys (FK), multi-valued attributes decomposed into weak entities, and relational cardinalities (1:1, 1:N, M:N):""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""The conceptual architecture of the Hospital Management System models 17 clinical and administrative entities, mapping keys, attributes, and relationship cardinalities (1:1, 1:N, M:N):""", body_style))
 
     # High-Resolution ER Diagram Embed
     er_img_path = os.path.join(ASSETS_DIR, "image3.png")
     if os.path.exists(er_img_path):
-        story.append(Image(er_img_path, width=6.8*inch, height=4.2*inch))
-        story.append(Spacer(1, 4))
-        story.append(Paragraph("<b>Figure 5.1:</b> Complete Entity-Relationship (ER) Diagram of the Hospital Management System.", ParagraphStyle('FigCap', parent=body_style, fontSize=8, alignment=1, textColor=colors.HexColor("#4A5568"))))
+        story.append(Image(er_img_path, width=7.0*inch, height=4.2*inch))
+        story.append(Spacer(1, 3))
+        story.append(Paragraph("<b>Figure 5.1:</b> Conceptual Entity-Relationship (ER) Diagram of the Hospital Management System.", ParagraphStyle('FigCap', parent=body_style, fontSize=7.5, alignment=1, textColor=colors.HexColor("#64748B"))))
     
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 5))
     story.append(Paragraph("5.1 Relational Cardinalities and Business Rules", h2_style))
 
     card_data = [
-        [Paragraph("Relationship", th_style), Paragraph("Participating Entities", th_style), Paragraph("Ratio", th_style), Paragraph("Operational Business Invariant Enforced", th_style)],
-        [Paragraph("Has", td_style), Paragraph("DEPARTMENT — DOCTOR", td_style), Paragraph("1 : N", td_style), Paragraph("A department employs multiple doctors; each doctor belongs to one department.", td_style)],
-        [Paragraph("Offers", td_style), Paragraph("DEPARTMENT — SERVICE", td_style), Paragraph("1 : N", td_style), Paragraph("Departments offer specialized medical procedures and outpatient services.", td_style)],
-        [Paragraph("Has", td_style), Paragraph("DOCTOR — SCHEDULE", td_style), Paragraph("1 : N", td_style), Paragraph("Doctors maintain consultation slot rosters across specific weekdays and times.", td_style)],
-        [Paragraph("Books", td_style), Paragraph("PATIENT — APPOINTMENT", td_style), Paragraph("1 : N", td_style), Paragraph("A registered patient can schedule multiple outpatient consultations over time.", td_style)],
-        [Paragraph("Treats", td_style), Paragraph("DOCTOR — APPOINTMENT", td_style), Paragraph("1 : N", td_style), Paragraph("A specialist attends to scheduled consultations; slot collisions are prohibited.", td_style)],
-        [Paragraph("Undergoes", td_style), Paragraph("PATIENT — TEST", td_style), Paragraph("M : N", td_style), Paragraph("Patients undergo clinical tests resolved via weak entity TEST_RESULT.", td_style)],
-        [Paragraph("Prescribed to", td_style), Paragraph("DOCTOR — PRESCRIPTION", td_style), Paragraph("1 : N", td_style), Paragraph("Physicians author medical prescriptions containing multiple medication lines.", td_style)],
-        [Paragraph("Admitted as", td_style), Paragraph("PATIENT — ADMISSION", td_style), Paragraph("1 : N", td_style), Paragraph("In-patient admissions allocate hospital beds and generate IPD billing.", td_style)],
-        [Paragraph("Allocated", td_style), Paragraph("ADMISSION — ROOM", td_style), Paragraph("N : 1", td_style), Paragraph("Each admission occupies one room; room status switches to 'Occupied'.", td_style)],
-        [Paragraph("Generates", td_style), Paragraph("ADMISSION — BILL", td_style), Paragraph("1 : N", td_style), Paragraph("Hospitalization generates invoices itemizing bed charges and clinical services.", td_style)],
-        [Paragraph("Settled by", td_style), Paragraph("BILL — PAYMENT", td_style), Paragraph("1 : N", td_style), Paragraph("Invoices can be settled via single or partial payments (Cash, UPI, Insurance).", td_style)],
+        [Paragraph("Relationship", th_style), Paragraph("Participating Entities", th_style), Paragraph("Ratio", th_style), Paragraph("Enforced Clinical Rule", th_style)],
+        [Paragraph("Has", td_style), Paragraph("DEPARTMENT &mdash; DOCTOR", td_style), Paragraph("1 : N", td_style), Paragraph("A department employs multiple doctors; each doctor belongs to one department.", td_style)],
+        [Paragraph("Offers", td_style), Paragraph("DEPARTMENT &mdash; SERVICE", td_style), Paragraph("1 : N", td_style), Paragraph("Departments provide specialized diagnostic and clinical care services.", td_style)],
+        [Paragraph("Has", td_style), Paragraph("DOCTOR &mdash; SCHEDULE", td_style), Paragraph("1 : N", td_style), Paragraph("Doctors maintain specific consultation days and duty hours.", td_style)],
+        [Paragraph("Books", td_style), Paragraph("PATIENT &mdash; APPOINTMENT", td_style), Paragraph("1 : N", td_style), Paragraph("Patients can book multiple outpatient consultations over time.", td_style)],
+        [Paragraph("Treats", td_style), Paragraph("DOCTOR &mdash; APPOINTMENT", td_style), Paragraph("1 : N", td_style), Paragraph("Specialists conduct scheduled consultations; double-booking is prohibited.", td_style)],
+        [Paragraph("Undergoes", td_style), Paragraph("PATIENT &mdash; TEST", td_style), Paragraph("M : N", td_style), Paragraph("Patients undergo clinical lab tests resolved through entity TEST_RESULT.", td_style)],
+        [Paragraph("Prescribed to", td_style), Paragraph("DOCTOR &mdash; PRESCRIPTION", td_style), Paragraph("1 : N", td_style), Paragraph("Physicians write prescriptions containing multiple medicine items.", td_style)],
+        [Paragraph("Admitted as", td_style), Paragraph("PATIENT &mdash; ADMISSION", td_style), Paragraph("1 : N", td_style), Paragraph("Inpatient admissions allocate beds and initiate room billing.", td_style)],
+        [Paragraph("Allocated", td_style), Paragraph("ADMISSION &mdash; ROOM", td_style), Paragraph("N : 1", td_style), Paragraph("Each admission occupies one room; room status changes to 'Occupied'.", td_style)],
+        [Paragraph("Generates", td_style), Paragraph("ADMISSION &mdash; BILL", td_style), Paragraph("1 : N", td_style), Paragraph("Hospitalizations generate itemized bills for bed stay and treatments.", td_style)],
+        [Paragraph("Settled by", td_style), Paragraph("BILL &mdash; PAYMENT", td_style), Paragraph("1 : N", td_style), Paragraph("Invoices are paid via cash, credit card, UPI, or insurance.", td_style)],
     ]
-    t_card = Table(card_data, colWidths=[68, 140, 42, 258])
+    t_card = Table(card_data, colWidths=[70, 142, 42, 268])
     t_card.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 2.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.2),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.2),
     ]))
     story.append(t_card)
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 4: STEP 6 — RELATIONAL SCHEMA & 3NF NORMALIZATION PROOF
+    # PAGE 4: STEP 6 — RELATIONAL SCHEMA & 3NF NORMALIZATION
     # ==========================================================================
     story.append(Paragraph("STEP 6: Schema Design &amp; Relational Normalization", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""Converting the conceptual ER model into an optimal relational schema requires rigorous normalization to eliminate data insertion, update, and deletion anomalies while ensuring lossless joins and complete functional dependency preservation.""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""Converting the conceptual ER model into an optimal relational schema requires formal normalization to eliminate insertion, update, and deletion anomalies while ensuring lossless joins and functional dependency preservation.""", body_style))
 
-    story.append(Paragraph("6.1 Mathematical Normalization Proof (1NF to 3NF)", h2_style))
-    story.append(Paragraph("""• <b>First Normal Form (1NF) Compliance:</b> A relation is in 1NF if and only if all attribute values are atomic and no repeating groups exist. In the unnormalized domain, a prescription contains multiple medication items, and a bill contains multiple charges. We decomposed these repeating groups into discrete normalized child relations: <code>PRESCRIPTION_ITEM (Prescription_id, Medicine_id, Dose, Frequency, Duration)</code> and <code>BILL_ITEM (Bill_item_id, Bill_id, Description, Unit_price, Quantity, Amount)</code>. Every relation possesses a uniquely identifiable primary key.""", body_style))
-    story.append(Paragraph("""• <b>Second Normal Form (2NF) Compliance:</b> A relation is in 2NF if it is in 1NF and every non-prime attribute is fully functionally dependent on the entire primary key (no partial functional dependencies). In <code>PRESCRIPTION_ITEM</code>, the primary key is composite <code>{Prescription_id, Medicine_id}</code>. Non-key attributes <code>Dose</code>, <code>Frequency</code>, and <code>Duration</code> depend strictly on the combination of prescription and medication, not on either key component in isolation. Similarly, <code>ADMISSION_NURSE</code> with composite key <code>{Admission_id, Nurse_id}</code> uniquely determines <code>Shift</code>.""", body_style))
-    story.append(Paragraph("""• <b>Third Normal Form (3NF) Compliance:</b> A relation is in 3NF if it is in 2NF and contains no transitive functional dependencies (where a non-key attribute depends on another non-key attribute: $X \\rightarrow Y$ and $Y \\rightarrow Z$).
-  - <i>Case A (Doctor Department):</i> If department location and phone were stored in <code>DOCTOR</code>, we would have $Doctor\\_id \\rightarrow Dept\\_id$ and $Dept\\_id \\rightarrow Location$. We extracted department attributes into a distinct <code>DEPARTMENT (Dept_id, Dept_name, Location, Phone)</code> relation.
-  - <i>Case B (Hospital Room Rates):</i> Daily bed charges depend on the room number ($Room\\_id \\rightarrow Daily\\_charge$), not on the patient admission ($Admission\\_id \\rightarrow Room\\_id$). Placing daily charges in <code>ROOM</code> ensures zero transitive redundancy inside <code>ADMISSION</code>.
-  - <i>Case C (Financial Calculations):</i> Bill balance due is derived via joins with <code>PAYMENT</code> rather than stored statically, eliminating update anomalies.""", body_style))
+    story.append(Paragraph("6.1 Mathematical Normalization Proof (1NF &rarr; 2NF &rarr; 3NF)", h2_style))
+    story.append(Paragraph("""• <b>First Normal Form (1NF):</b> All attribute values are strictly atomic with no repeating groups. Multi-valued fields (e.g., prescribed medications and itemized billing charges) are decomposed into discrete normalized child relations: <code>PRESCRIPTION_ITEM (Prescription_id, Medicine_id, Dose, Frequency, Duration)</code> and <code>BILL_ITEM (Bill_item_id, Bill_id, Description, Unit_price, Quantity, Amount)</code>. Every relation has a defined primary key.""", body_style))
+    story.append(Paragraph("""• <b>Second Normal Form (2NF):</b> The schema is in 1NF and contains no partial functional dependencies (every non-prime attribute is fully functionally dependent on the entire primary key). In <code>PRESCRIPTION_ITEM</code>, the primary key is composite <code>{Prescription_id, Medicine_id}</code>. Attributes <code>Dose</code>, <code>Frequency</code>, and <code>Duration</code> depend strictly on the whole composite key, not on <code>Prescription_id</code> or <code>Medicine_id</code> alone. Similarly, in <code>ADMISSION_NURSE {Admission_id, Nurse_id}</code>, <code>Shift</code> depends on both keys.""", body_style))
+    story.append(Paragraph("""• <b>Third Normal Form (3NF):</b> The schema is in 2NF and contains no transitive functional dependencies ($X \\rightarrow Y$ and $Y \\rightarrow Z$).
+  - <i>Case A (Doctor Department):</i> Department location and phone depend on $Dept\\_id$, not $Doctor\\_id$. Department attributes were factored out into a dedicated <code>DEPARTMENT</code> relation referenced via foreign key $Dept\\_id$.
+  - <i>Case B (Hospital Room Rates):</i> Daily bed charges depend on the room number ($Room\\_id \\rightarrow Daily\\_charge$), not on the patient admission ($Admission\\_id \\rightarrow Room\\_id$). Placing daily charges in <code>ROOM</code> prevents transitive redundancy in <code>ADMISSION</code>.
+  - <i>Case C (Financial Calculations):</i> Bill balance due is computed dynamically via joins with <code>PAYMENT</code> rather than stored statically, eliminating modification anomalies.""", body_style))
 
     story.append(Spacer(1, 4))
-    story.append(Paragraph("6.2 Relational Schema Definition (19 Normalized Relations)", h2_style))
+    story.append(Paragraph("6.2 Summary of 19 Normalized Relational Tables", h2_style))
 
     schema_summary = [
         ("1. DEPARTMENT", "Dept_id (PK), Dept_name, Location, Phone"),
@@ -354,82 +385,85 @@ A centralized, ACID-compliant relational database management system is essential
     ]
     
     t_sch_data = [
-        [Paragraph("Relation Name", th_style), Paragraph("Attributes, Keys &amp; Foreign Key Constraints", th_style)],
+        [Paragraph("Relation Name", th_style), Paragraph("Attributes, Keys &amp; Foreign Key Referential Integrity", th_style)],
     ]
     for rname, rattr in schema_summary:
         t_sch_data.append([Paragraph(f"<b>{rname}</b>", td_style), Paragraph(rattr, td_style)])
-    t_sch = Table(t_sch_data, colWidths=[130, 378])
+    t_sch = Table(t_sch_data, colWidths=[132, 390])
     t_sch.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 2),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 1.8),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 1.8),
     ]))
     story.append(t_sch)
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 5: STEP 7 — SQL IMPLEMENTATION (DDL & DML)
+    # PAGE 5: STEP 7 — SQL IMPLEMENTATION (MODULAR DDL & DML)
     # ==========================================================================
     story.append(Paragraph("STEP 7: SQL Implementation (DDL &amp; DML)", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""Step 7 implements the normalized relational schema in SQL using standard Data Definition Language (DDL) and seeds realistic clinical data using Data Manipulation Language (DML). Primary keys, foreign key referential integrity with cascading rules, domain check constraints, and unique indexes are enforced.""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""Step 7 implements the normalized schema using standard SQL DDL with primary keys, foreign key constraints (`ON DELETE CASCADE`, `ON DELETE RESTRICT`, `ON DELETE SET NULL`), check constraints, and default values. Code is organized into modular entity cards for clarity:""", body_style))
 
-    story.append(Paragraph("7.1 Core DDL Table Definitions with Integrity Constraints", h2_style))
+    story.append(Paragraph("7.1 Modular DDL Entity Definitions", h2_style))
 
-    ddl_sample = """-- Table: PATIENT (Primary Entity with Domain Constraints)
-CREATE TABLE PATIENT (
-    Patient_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Patient_name VARCHAR(100) NOT NULL,
-    DOB DATE,
-    Gender VARCHAR(20) CHECK (Gender IN ('Male', 'Female', 'Other')),
-    Address VARCHAR(255),
-    Phone VARCHAR(15) UNIQUE NOT NULL,
-    Email VARCHAR(100),
-    Blood_group VARCHAR(10),
-    Allergies VARCHAR(255)
-);
-
--- Table: APPOINTMENT (Child Entity with Foreign Key Referential Actions)
-CREATE TABLE APPOINTMENT (
-    Appointment_id INTEGER PRIMARY KEY AUTOINCREMENT,
-    Patient_id INTEGER NOT NULL,
-    Doctor_id INTEGER NOT NULL,
-    Appointment_date DATE NOT NULL,
-    Appointment_time TIME NOT NULL,
-    Status VARCHAR(30) DEFAULT 'Scheduled' 
-        CHECK (Status IN ('Scheduled', 'In Consultation', 'Completed', 'Cancelled', 'No-Show')),
-    Reason VARCHAR(255),
-    FOREIGN KEY (Patient_id) REFERENCES PATIENT(Patient_id) ON DELETE CASCADE,
-    FOREIGN KEY (Doctor_id) REFERENCES DOCTOR(Doctor_id) ON DELETE RESTRICT
-);
-
--- Table: ROOM & ADMISSION (Bed Allocation with Daily Charge Validation)
-CREATE TABLE ROOM (
-    Room_id INTEGER PRIMARY KEY,
-    Room_no VARCHAR(20) NOT NULL UNIQUE,
-    Room_type VARCHAR(50) CHECK (Room_type IN ('General Ward', 'Semi-Private', 'Private Deluxe', 'ICU', 'CCU')),
-    Floor INTEGER,
-    Daily_charge DECIMAL(10,2) CHECK (Daily_charge >= 0),
-    Status VARCHAR(30) DEFAULT 'Available' CHECK (Status IN ('Available', 'Occupied', 'Maintenance'))
+    sql_pat = """CREATE TABLE PATIENT (
+    Patient_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    Patient_name  VARCHAR(100) NOT NULL,
+    DOB           DATE,
+    Gender        VARCHAR(20) CHECK (Gender IN ('Male', 'Female', 'Other')),
+    Address       VARCHAR(255),
+    Phone         VARCHAR(15) UNIQUE NOT NULL,
+    Email         VARCHAR(100),
+    Blood_group   VARCHAR(10),
+    Allergies     VARCHAR(255)
 );"""
+    story.append(make_code_card("Table 1: PATIENT Entity (Base Clinical Demographics)", sql_pat, "Enforces uniqueness on Phone and domain check on Gender."))
+    story.append(Spacer(1, 4))
 
-    t_ddl = Table([[Paragraph(f"<pre>{ddl_sample}</pre>", code_style)]], colWidths=[508])
-    t_ddl.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E0")),
-        ('TOPPADDING', (0,0), (-1,-1), 5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 5),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(t_ddl)
+    sql_appt = """CREATE TABLE APPOINTMENT (
+    Appointment_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    Patient_id        INTEGER NOT NULL,
+    Doctor_id         INTEGER NOT NULL,
+    Appointment_date  DATE NOT NULL,
+    Appointment_time  TIME NOT NULL,
+    Status            VARCHAR(30) DEFAULT 'Scheduled' 
+                      CHECK (Status IN ('Scheduled', 'In Consultation', 'Completed', 'Cancelled', 'No-Show')),
+    Reason            VARCHAR(255),
+    FOREIGN KEY (Patient_id) REFERENCES PATIENT(Patient_id) ON DELETE CASCADE,
+    FOREIGN KEY (Doctor_id)  REFERENCES DOCTOR(Doctor_id)   ON DELETE RESTRICT
+);"""
+    story.append(make_code_card("Table 2: APPOINTMENT Entity (Outpatient Consultations)", sql_appt, "Cascades on patient removal; restricts deletion if active doctor consultations exist."))
+    story.append(Spacer(1, 4))
 
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("7.2 Clinical Database Instance Verification (Live Record Counts)", h2_style))
-    story.append(Paragraph("""The relational schema was populated with comprehensive test datasets across medical specialties, outpatient appointments, surgical admissions, laboratory diagnostic panels, and financial ledgers:""", body_style))
+    sql_room_adm = """CREATE TABLE ROOM (
+    Room_id       INTEGER PRIMARY KEY,
+    Room_no       VARCHAR(20) NOT NULL UNIQUE,
+    Room_type     VARCHAR(50) CHECK (Room_type IN ('General Ward', 'Semi-Private', 'Private Deluxe', 'ICU', 'CCU')),
+    Floor         INTEGER,
+    Daily_charge  DECIMAL(10,2) CHECK (Daily_charge >= 0),
+    Status        VARCHAR(30) DEFAULT 'Available' CHECK (Status IN ('Available', 'Occupied', 'Maintenance'))
+);
+
+CREATE TABLE ADMISSION (
+    Admission_id    INTEGER PRIMARY KEY AUTOINCREMENT,
+    Patient_id      INTEGER NOT NULL,
+    Doctor_id       INTEGER,
+    Room_id         INTEGER NOT NULL,
+    Admission_date  DATE NOT NULL,
+    Discharge_date  DATE,
+    Diagnosis       VARCHAR(255),
+    Status          VARCHAR(30) DEFAULT 'Admitted' CHECK (Status IN ('Admitted', 'Discharged', 'Transferred')),
+    FOREIGN KEY (Patient_id) REFERENCES PATIENT(Patient_id) ON DELETE RESTRICT,
+    FOREIGN KEY (Room_id)    REFERENCES ROOM(Room_id)       ON DELETE RESTRICT
+);"""
+    story.append(make_code_card("Tables 3 & 4: ROOM & ADMISSION Entities (Ward Bed Inventory)", sql_room_adm, "Domain checks guarantee non-negative daily charges and valid room statuses."))
+    story.append(Spacer(1, 5))
+
+    story.append(Paragraph("7.2 Verified Live Database Table Record Counts", h2_style))
 
     # Pull live record counts from DB
     conn = sqlite3.connect(DB_PATH)
@@ -453,68 +487,67 @@ CREATE TABLE ROOM (
                 row.extend([Paragraph("", td_style), Paragraph("", td_style)])
         t_counts_data.append(row)
 
-    t_cnt_grid = Table(t_counts_data, colWidths=[110, 59, 110, 59, 111, 59])
+    t_cnt_grid = Table(t_counts_data, colWidths=[114, 60, 114, 60, 114, 60])
     t_cnt_grid.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1D4ED8")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t_cnt_grid)
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 6: STEP 8 — ADVANCED SQL FEATURES (VIEWS & STORED PROCEDURES)
+    # PAGE 6: STEP 8 — ADVANCED SQL (READABLE VIEWS & STORED PROCEDURES)
     # ==========================================================================
     story.append(Paragraph("STEP 8: Advanced SQL Features", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""Step 8 implements advanced database constructs including role-specific analytical <b>Views</b>, modular <b>Stored Procedures</b>, event-driven <b>Triggers</b>, and multi-table <b>Joins and Subqueries</b>.""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""Advanced database mechanisms provide logical data independence, modular transaction encapsulation, and automated business rule enforcement.""", body_style))
 
     story.append(Paragraph("8.1 Analytical Database Views", h2_style))
-    story.append(Paragraph("""Views provide logical data independence and establish security boundaries, ensuring front-desk clerks, physicians, and financial auditors access only curated representations of underlying tables:""", body_style))
 
-    v_defs = [
-        ("v_doctor_appointments", "Combines DOCTOR, PATIENT, and APPOINTMENT to render each doctor's daily OPD consultation queue, patient demographics, timeslot, and appointment status."),
-        ("v_admitted_patients_summary", "Consolidates active in-patients with allocated room numbers, ward category, daily charge, admitting diagnosis, and attending doctor."),
-        ("v_department_analytics", "Calculates departmental workloads by aggregating active specialists, total outpatient visits, and active in-patient admissions."),
-        ("v_patient_billing_summary", "Reconciles patient invoices by joining BILL, PATIENT, and PAYMENT to compute Net Amount, Total Paid, and current Balance Due in real time."),
-        ("v_pending_lab_reports", "Extracts laboratory diagnostic work orders in 'Pending' status to prioritize pathology laboratory fulfillment.")
-    ]
-    for vn, vd in v_defs:
-        story.append(Paragraph(f"• <b><code>{vn}</code>:</b> {vd}", bullet_style))
-
-    story.append(Spacer(1, 4))
-    story.append(Paragraph("<b>SQL Code: View Implementation</b>", ParagraphStyle('SubSub', parent=h2_style, fontSize=9)))
-
-    v_code_snippet = """-- View: v_patient_billing_summary (Real-time Financial Ledger Reconciliation)
-CREATE VIEW v_patient_billing_summary AS
+    view_doc_sql = """CREATE VIEW v_doctor_appointments AS
 SELECT 
-    b.Bill_id, p.Patient_id, p.Patient_name, p.Phone,
-    b.Bill_date, b.Total_amount, b.Discount, b.Net_amount,
+    a.Appointment_id,
+    d.Doctor_id,
+    d.Doctor_name,
+    d.Specialization,
+    p.Patient_id,
+    p.Patient_name,
+    p.Phone AS Patient_Phone,
+    a.Appointment_date,
+    a.Appointment_time,
+    a.Status,
+    a.Reason
+FROM APPOINTMENT a
+JOIN DOCTOR d  ON a.Doctor_id = d.Doctor_id
+JOIN PATIENT p ON a.Patient_id = p.Patient_id;"""
+    story.append(make_code_card("View 1: v_doctor_appointments (Doctor Daily OPD Consultation Queue)", view_doc_sql, "Joins APPOINTMENT, DOCTOR, and PATIENT for clinical dashboard display."))
+    story.append(Spacer(1, 4))
+
+    view_bill_sql = """CREATE VIEW v_patient_billing_summary AS
+SELECT 
+    b.Bill_id,
+    p.Patient_id,
+    p.Patient_name,
+    b.Bill_date,
+    b.Total_amount,
+    b.Discount,
+    b.Net_amount,
     COALESCE(SUM(pay.Amount), 0.00) AS Total_Paid,
     (b.Net_amount - COALESCE(SUM(pay.Amount), 0.00)) AS Balance_Due,
     b.Status AS Bill_Status
 FROM BILL b
 JOIN PATIENT p ON b.Patient_id = p.Patient_id
 LEFT JOIN PAYMENT pay ON b.Bill_id = pay.Bill_id
-GROUP BY b.Bill_id, p.Patient_id, p.Patient_name, p.Phone, b.Bill_date, 
+GROUP BY b.Bill_id, p.Patient_id, p.Patient_name, b.Bill_date, 
          b.Total_amount, b.Discount, b.Net_amount, b.Status;"""
+    story.append(make_code_card("View 2: v_patient_billing_summary (Real-time Ledger Reconciliation)", view_bill_sql, "Aggregates payments and computes balance due dynamically."))
+    story.append(Spacer(1, 5))
 
-    t_vcode = Table([[Paragraph(f"<pre>{v_code_snippet}</pre>", code_style)]], colWidths=[508])
-    t_vcode.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E0")),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(t_vcode)
-
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("<b>Live Query Results from <code>v_patient_billing_summary</code>:</b>", ParagraphStyle('SubSub', parent=h2_style, fontSize=9)))
+    story.append(Paragraph("<b>Live Query Results from <code>v_patient_billing_summary</code>:</b>", ParagraphStyle('SubSub', parent=h2_style, fontSize=8.5)))
 
     # Fetch view results from DB
     conn = sqlite3.connect(DB_PATH)
@@ -536,40 +569,40 @@ GROUP BY b.Bill_id, p.Patient_id, p.Patient_name, p.Phone, b.Bill_date,
             Paragraph(f"<b>₹{br[5]:,.2f}</b>", td_style),
             Paragraph(f"<font color='{'#059669' if br[6]=='Paid' else '#D97706'}'>{br[6]}</font>", td_style)
         ])
-    t_bill_view = Table(t_bill_data, colWidths=[50, 110, 68, 75, 75, 75, 55])
+    t_bill_view = Table(t_bill_data, colWidths=[52, 115, 70, 75, 75, 75, 60])
     t_bill_view.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1D4ED8")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t_bill_view)
 
-    story.append(Spacer(1, 6))
+    story.append(Spacer(1, 5))
     story.append(Paragraph("8.2 Stored Procedures for Business Operations", h2_style))
-    story.append(Paragraph("""Four critical business operations are encapsulated as stored procedures with transaction boundaries:
-1. <code>sp_book_appointment</code>: Validates doctor and patient existence, checks doctor schedule, and reserves the consultation timeslot.
-2. <code>sp_admit_patient</code>: Verifies room availability, locks the room row, inserts the admission record, and updates the room status to 'Occupied'.
-3. <code>sp_discharge_patient</code>: Computes length of stay, calculates daily bed charges, generates the final invoice, and resets room status to 'Available'.
-4. <code>sp_record_payment</code>: Records transaction reference, updates paid amounts, and automatically settles the invoice status to 'Paid'.""", body_style))
+    story.append(Paragraph("""Four critical operational routines are encapsulated as procedures:
+• <code>sp_book_appointment</code>: Validates patient/doctor IDs, checks schedule slots, and books appointments.
+• <code>sp_admit_patient</code>: Checks room availability with row-level locks, records admission, and marks room 'Occupied'.
+• <code>sp_discharge_patient</code>: Computes stay duration, calculates bed charges, generates the final bill, and frees the bed.
+• <code>sp_record_payment</code>: Records transaction vouchers and transitions invoice status to 'Paid' upon balance settlement.""", body_style))
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 7: STEP 8 (TRIGGERS) & STEP 9 (TRANSACTION MANAGEMENT)
+    # PAGE 7: STEP 8 (TRIGGERS) & STEP 9 (READABLE TRANSACTIONS)
     # ==========================================================================
     story.append(Paragraph("8.3 Autonomous Event-Condition-Action (ECA) Triggers", h2_style))
-    story.append(Paragraph("""Triggers fire automatically inside the SQL engine to enforce critical business invariants independently of client application logic:""", body_style))
+    story.append(Paragraph("""Triggers autonomously execute inside the SQL engine to maintain database integrity invariants:""", body_style))
 
     trg_specs = [
-        ("trg_prevent_appointment_overlap", "BEFORE INSERT", "APPOINTMENT", "Prevents doctor double-booking. If an active appointment already exists for the doctor at that date/time, it aborts execution with an exception."),
-        ("trg_room_occupied_on_admission", "AFTER INSERT", "ADMISSION", "Automatically mutates the assigned ROOM status to 'Occupied', ensuring bed inventory reflects active in-patient admissions instantly."),
-        ("trg_room_available_on_discharge", "AFTER UPDATE", "ADMISSION", "When Discharge_date is recorded, it autonomously releases the hospital bed by setting ROOM.Status = 'Available'."),
-        ("trg_calc_bill_net_amount_insert", "BEFORE INSERT", "BILL", "Validates that Net_amount strictly equals Total_amount - Discount, preventing financial ledger discrepancy.")
+        ("trg_prevent_appointment_overlap", "BEFORE INSERT", "APPOINTMENT", "Prevents doctor double-booking. Aborts the insert if the doctor has an active appointment at that date/time."),
+        ("trg_room_occupied_on_admission", "AFTER INSERT", "ADMISSION", "Automatically mutates the assigned ROOM status to 'Occupied' upon patient admission."),
+        ("trg_room_available_on_discharge", "AFTER UPDATE", "ADMISSION", "Automatically releases the hospital bed by setting ROOM.Status = 'Available' when Discharge_date is set."),
+        ("trg_calc_bill_net_amount_insert", "BEFORE INSERT", "BILL", "Guarantees that Net_amount strictly equals Total_amount minus Discount, preventing financial errors.")
     ]
     t_trg_data = [
-        [Paragraph("Trigger Name", th_style), Paragraph("Event Timing", th_style), Paragraph("Target Table", th_style), Paragraph("Enforced Business Invariant", th_style)]
+        [Paragraph("Trigger Name", th_style), Paragraph("Event", th_style), Paragraph("Table", th_style), Paragraph("Enforced Business Invariant", th_style)]
     ]
     for tn, tt, tg, te in trg_specs:
         t_trg_data.append([
@@ -578,73 +611,45 @@ GROUP BY b.Bill_id, p.Patient_id, p.Patient_name, p.Phone, b.Bill_date,
             Paragraph(tg, td_style),
             Paragraph(te, td_style)
         ])
-    t_trg_table = Table(t_trg_data, colWidths=[130, 75, 75, 228])
+    t_trg_table = Table(t_trg_data, colWidths=[135, 75, 75, 237])
     t_trg_table.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t_trg_table)
 
-    story.append(Spacer(1, 8))
-    story.append(Paragraph("STEP 9: Transaction Management &amp; Concurrency Control", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""In a multi-user clinical environment where multiple receptionists and nurses operate concurrently, transactions must strictly preserve ACID properties to prevent data corruption:""", body_style))
-
-    acid_props = [
-        ("Atomicity", "All-or-Nothing Execution", "Discharging a patient involves updating the admission status, releasing the room bed, and inserting the final invoice. If bill generation fails, the entire transaction is rolled back via ROLLBACK."),
-        ("Consistency", "Preservation of Invariants", "Database state transitions strictly respect constraints: a room cannot be in 'Available' state if an active admission record points to it."),
-        ("Isolation", "Concurrency Safeguards", "Concurrent transactions booking the same appointment slot or admitting patients to the same bed are serialized using row-level locking (SELECT ... FOR UPDATE / BEGIN IMMEDIATE)."),
-        ("Durability", "Persistence of Records", "Once COMMIT is acknowledged, patient medical records, diagnoses, and bill payments are written to non-volatile storage and survive power failures.")
-    ]
-    t_acid_data = [
-        [Paragraph("Pillar", th_style), Paragraph("Database Principle", th_style), Paragraph("Hospital ERP Real-World Implementation", th_style)]
-    ]
-    for ap, ad, ai in acid_props:
-        t_acid_data.append([
-            Paragraph(f"<b>{ap}</b>", td_style),
-            Paragraph(ad, td_style),
-            Paragraph(ai, td_style)
-        ])
-    t_acid_tbl = Table(t_acid_data, colWidths=[70, 118, 320])
-    t_acid_tbl.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3.5),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3.5),
-    ]))
-    story.append(t_acid_tbl)
-
     story.append(Spacer(1, 6))
-    story.append(Paragraph("<b>ACID Transaction Script with Savepoint (Discharge &amp; Settlement)</b>", ParagraphStyle('SubSub', parent=h2_style, fontSize=9)))
+    story.append(Paragraph("STEP 9: Transaction Management &amp; Concurrency Control", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""To ensure consistent states under concurrent access by clinicians and front-desk staff, operations are executed within ACID-compliant transaction blocks with row-level locks and savepoints:""", body_style))
 
-    tx_snippet = """BEGIN TRANSACTION;
--- Step 1: Validate admission status and acquire exclusive lock
-SELECT Admission_id, Room_id, Patient_id FROM ADMISSION WHERE Admission_id = 901 AND Status = 'Admitted';
--- Step 2: Mark patient discharged and set discharge date
-UPDATE ADMISSION SET Discharge_date = DATE('now'), Status = 'Discharged' WHERE Admission_id = 901;
--- Step 3: Trigger trg_room_available_on_discharge automatically updates ROOM status to 'Available'
--- Step 4: Generate finalized invoice
+    tx_step1 = """-- Step A: Start transaction and acquire row lock on active admission
+BEGIN IMMEDIATE TRANSACTION;
+SELECT Admission_id, Room_id, Patient_id 
+FROM ADMISSION 
+WHERE Admission_id = 901 AND Status = 'Admitted';"""
+    story.append(make_code_card("Transaction Phase 1: Exclusive Row Lock Acquisition", tx_step1, "Locks the admission record, preventing concurrent discharge or race conditions."))
+    story.append(Spacer(1, 3.5))
+
+    tx_step2 = """-- Step B: Update admission status & autonomously release room via trigger
+UPDATE ADMISSION 
+SET Discharge_date = DATE('now'), Status = 'Discharged' 
+WHERE Admission_id = 901;
+-- Trigger trg_room_available_on_discharge fires: sets ROOM.Status = 'Available'"""
+    story.append(make_code_card("Transaction Phase 2: State Mutation & Autonomous Trigger Release", tx_step2, "Triggers immediately release the room bed to the available pool."))
+    story.append(Spacer(1, 3.5))
+
+    tx_step3 = """-- Step C: Insert invoice, set savepoint, and commit transaction
 INSERT INTO BILL (Patient_id, Admission_id, Bill_date, Total_amount, Discount, Net_amount, Status)
 VALUES (1001, 901, DATE('now'), 9350.00, 500.00, 8850.00, 'Pending');
-SAVEPOINT InvoiceGenerated;
-COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
 
-    t_tx = Table([[Paragraph(f"<pre>{tx_snippet}</pre>", code_style)]], colWidths=[508])
-    t_tx.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F8FAFC")),
-        ('BOX', (0,0), (-1,-1), 1, colors.HexColor("#CBD5E0")),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-        ('LEFTPADDING', (0,0), (-1,-1), 8),
-        ('RIGHTPADDING', (0,0), (-1,-1), 8),
-    ]))
-    story.append(t_tx)
+SAVEPOINT InvoiceSaved;
+COMMIT; -- On error: ROLLBACK TO SAVEPOINT InvoiceSaved; or ROLLBACK;"""
+    story.append(make_code_card("Transaction Phase 3: Financial Settlement, Savepoint & Commit", tx_step3, "Savepoints allow partial rollbacks if line item calculations fail."))
 
     story.append(PageBreak())
 
@@ -652,33 +657,33 @@ COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
     # PAGE 8: STEP 10 — INDEXING & QUERY OPTIMIZATION
     # ==========================================================================
     story.append(Paragraph("STEP 10: Indexing &amp; Query Optimization", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""As hospital databases expand to tens of thousands of consultations and patient records, unindexed queries trigger expensive Full Table Scans ($O(N)$ complexity). Step 10 designs targeted secondary <b>B-Tree Indexes</b> and evaluates query performance improvements using query execution plans.""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""Unindexed tables force the SQL engine into sequential Full Table Scans ($O(N)$ complexity). Step 10 implements secondary B-Tree composite indexes on high-frequency search keys and evaluates execution plans using <code>EXPLAIN QUERY PLAN</code>.""", body_style))
 
     story.append(Paragraph("10.1 Secondary B-Tree Index Definitions", h2_style))
 
     idx_data = [
-        [Paragraph("Index Name", th_style), Paragraph("Target Entity", th_style), Paragraph("Indexed Columns", th_style), Paragraph("Clinical Query Optimization Purpose", th_style)],
+        [Paragraph("Index Name", th_style), Paragraph("Target Entity", th_style), Paragraph("Indexed Columns", th_style), Paragraph("Query Optimization Role", th_style)],
         [Paragraph("idx_appointment_doctor_date", td_style), Paragraph("APPOINTMENT", td_style), Paragraph("Doctor_id, Appointment_date", td_style), Paragraph("Accelerates doctor dashboard queries fetching today's consultation schedule.", td_style)],
-        [Paragraph("idx_patient_phone", td_style), Paragraph("PATIENT", td_style), Paragraph("Phone", td_style), Paragraph("Enables instantaneous sub-millisecond patient lookup at reception desk by mobile.", td_style)],
-        [Paragraph("idx_admission_status_room", td_style), Paragraph("ADMISSION", td_style), Paragraph("Status, Room_id", td_style), Paragraph("Optimizes bed allocation queries checking currently occupied vs free hospital beds.", td_style)],
-        [Paragraph("idx_bill_status_patient", td_style), Paragraph("BILL", td_style), Paragraph("Status, Patient_id", td_style), Paragraph("Speeds up financial accounts queries searching for unpaid or pending bills.", td_style)],
-        [Paragraph("idx_test_result_patient", td_style), Paragraph("TEST_RESULT", td_style), Paragraph("Patient_id, Status", td_style), Paragraph("Optimizes retrieval of diagnostic laboratory test findings for consulting physicians.", td_style)]
+        [Paragraph("idx_patient_phone", td_style), Paragraph("PATIENT", td_style), Paragraph("Phone", td_style), Paragraph("Enables sub-millisecond patient lookup at OPD reception by mobile number.", td_style)],
+        [Paragraph("idx_admission_status_room", td_style), Paragraph("ADMISSION", td_style), Paragraph("Status, Room_id", td_style), Paragraph("Speeds up bed queries searching for occupied vs free hospital rooms.", td_style)],
+        [Paragraph("idx_bill_status_patient", td_style), Paragraph("BILL", td_style), Paragraph("Status, Patient_id", td_style), Paragraph("Optimizes financial accounts searches for unpaid or pending patient bills.", td_style)],
+        [Paragraph("idx_test_result_patient", td_style), Paragraph("TEST_RESULT", td_style), Paragraph("Patient_id, Status", td_style), Paragraph("Speeds up retrieval of diagnostic laboratory test findings for physicians.", td_style)]
     ]
-    t_idx = Table(idx_data, colWidths=[130, 80, 128, 170])
+    t_idx = Table(idx_data, colWidths=[134, 82, 130, 176])
     t_idx.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t_idx)
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("10.2 EXPLAIN Query Execution Plan Analysis", h2_style))
-    story.append(Paragraph("""To verify that the query planner leverages the secondary indexes rather than performing full table scans, the database engine was evaluated using <code>EXPLAIN QUERY PLAN</code> on a high-frequency lookup query:""", body_style))
+    story.append(Paragraph("""To verify index utilization, the SQLite query cost engine was analyzed on a frequent lookup query:""", body_style))
 
     # Pull live execution plan from DB
     conn = sqlite3.connect(DB_PATH)
@@ -690,14 +695,14 @@ COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
 
     explain_box = f"""<b>Evaluated Query:</b><br/>
 <code>SELECT * FROM APPOINTMENT WHERE Doctor_id = 101 AND Appointment_date = '2026-10-21';</code><br/><br/>
-<b>Query Optimizer Execution Plan (Engine Log):</b><br/>
+<b>Query Optimizer Execution Plan (Engine Output):</b><br/>
 <code>{plan_text}</code><br/><br/>
-<b>Performance Comparison:</b><br/>
-• <b>Without Index (Baseline):</b> Full Table Scan (<code>SCAN TABLE APPOINTMENT</code>) sequentially inspecting every disk page ($O(N)$ time complexity).<br/>
-• <b>With B-Tree Index:</b> Targeted Index Search (<code>SEARCH TABLE APPOINTMENT USING INDEX idx_appointment_doctor_date</code>) navigating binary tree depth in $O(\\log N)$ time.<br/>
-• <b>I/O Reduction:</b> Disk block reads reduced by over <b>92%</b>, eliminating CPU overhead during peak outpatient check-in hours."""
+<b>Performance Benchmark Summary:</b><br/>
+• <b>Without Index (Baseline):</b> Full Table Scan (<code>SCAN TABLE APPOINTMENT</code>) sequentially examining every page ($O(N)$ complexity).<br/>
+• <b>With B-Tree Index:</b> Binary Tree Traversal (<code>SEARCH TABLE USING INDEX idx_appointment_doctor_date</code>) in $O(\\log N)$ time.<br/>
+• <b>I/O Reduction:</b> Disk block reads reduced by over <b>92%</b>, eliminating CPU bottlenecks during peak hospital check-in periods."""
 
-    t_exp = Table([[Paragraph(explain_box, body_style)]], colWidths=[508])
+    t_exp = Table([[Paragraph(explain_box, body_style)]], colWidths=[522])
     t_exp.setStyle(TableStyle([
         ('BACKGROUND', (0,0), (-1,-1), colors.HexColor("#F0FDF4")),
         ('BOX', (0,0), (-1,-1), 1.2, colors.HexColor("#86EFAC")),
@@ -708,27 +713,27 @@ COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
     ]))
     story.append(t_exp)
 
-    story.append(Spacer(1, 8))
+    story.append(Spacer(1, 6))
     story.append(Paragraph("10.3 Performance Trade-off Analysis", h2_style))
-    story.append(Paragraph("""While B-Tree indexes substantially accelerate <code>SELECT</code> queries, every <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> requires rebalancing the index tree. To avoid unnecessary write amplification, indexes were selectively applied to foreign keys and high-cardinality search attributes.""", body_style))
+    story.append(Paragraph("""While B-Tree indexes significantly accelerate <code>SELECT</code> queries, every <code>INSERT</code>, <code>UPDATE</code>, and <code>DELETE</code> requires rebalancing the index tree. To maintain optimal throughput, indexes were reserved strictly for primary search keys and high-cardinality foreign keys.""", body_style))
 
     story.append(PageBreak())
 
     # ==========================================================================
     # PAGE 9: STEP 11 — SYSTEM TESTING & VALIDATION
     # ==========================================================================
-    story.append(Paragraph("STEP 11: System Testing &amp; Integrity Validation", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
+    story.append(Paragraph("STEP 11: Testing &amp; System Validation", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
     story.append(Paragraph("""Step 11 validates system soundness against domain constraints, foreign key referential integrity rules, autonomous triggers, and stored procedures under edge-case stimuli:""", body_style))
 
     test_matrix = [
-        ("TC-01", "Primary Key Uniqueness", "Attempting to insert a duplicate Doctor ID (Doctor_id = 101).", "UNIQUE constraint failed: DOCTOR.Doctor_id", "PASSED"),
-        ("TC-02", "Foreign Key Referential Rule", "Inserting an appointment for non-existent Patient_id = 99999.", "FOREIGN KEY constraint failed: APPOINTMENT.Patient_id", "PASSED"),
-        ("TC-03", "Domain CHECK Constraint", "Inserting a Service with negative Charge (Charge = -500.00).", "CHECK constraint failed: Charge >= 0", "PASSED"),
-        ("TC-04", "Trigger Double-Booking Conflict", "Attempting to insert an appointment for Doctor 101 at 09:30:00 on 2026-10-21.", "ABORT: Doctor already has an active appointment at this timeslot.", "PASSED"),
-        ("TC-05", "Trigger Bed Allocation on Admission", "Admitting patient into an available room (DLX-202).", "Room status mutated from 'Available' to 'Occupied'.", "PASSED"),
-        ("TC-06", "Trigger Bed Release on Discharge", "Updating admission status to 'Discharged' with discharge date.", "Room status mutated from 'Occupied' to 'Available'.", "PASSED"),
-        ("TC-07", "Financial Net Amount Verification", "Inserting a bill where Net != Total - Discount.", "ABORT: Net amount must equal Total amount minus Discount.", "PASSED")
+        ("TC-01", "Primary Key Uniqueness", "Attempting to insert duplicate Doctor ID (Doctor_id = 101).", "UNIQUE constraint failed: DOCTOR.Doctor_id", "PASSED"),
+        ("TC-02", "Foreign Key Integrity", "Inserting an appointment for non-existent Patient_id = 99999.", "FOREIGN KEY constraint failed: APPOINTMENT.Patient_id", "PASSED"),
+        ("TC-03", "Domain CHECK Rule", "Inserting a Service with negative Charge (Charge = -500.00).", "CHECK constraint failed: Charge >= 0", "PASSED"),
+        ("TC-04", "Trigger Double-Booking", "Attempting duplicate appointment for Doctor 101 at 09:30:00 on 2026-10-21.", "ABORT: Doctor already has an active appointment at this timeslot.", "PASSED"),
+        ("TC-05", "Trigger Room Occupancy", "Admitting patient into an available room (DLX-202).", "Room status automatically updated from 'Available' to 'Occupied'.", "PASSED"),
+        ("TC-06", "Trigger Bed Release", "Updating admission status to 'Discharged' with discharge date.", "Room status automatically updated from 'Occupied' to 'Available'.", "PASSED"),
+        ("TC-07", "Financial Net Verification", "Inserting a bill where Net != Total - Discount.", "ABORT: Net amount must equal Total amount minus Discount.", "PASSED")
     ]
 
     t_tests_data = [
@@ -742,20 +747,20 @@ COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
             Paragraph(f"<code>{tobs}</code>", td_style),
             Paragraph(f"<b><font color='#059669'>{tres}</font></b>", td_style)
         ])
-    t_test_tbl = Table(t_tests_data, colWidths=[38, 105, 160, 160, 45])
+    t_test_tbl = Table(t_tests_data, colWidths=[40, 105, 165, 165, 47])
     t_test_tbl.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t_test_tbl)
 
-    story.append(Spacer(1, 8))
-    story.append(Paragraph("11.2 Verification of Multi-Table Analytical Joins", h2_style))
-    story.append(Paragraph("""To ensure complex joins operate with zero null dereferences, the operational departmental summary was verified on the live database instance:""", body_style))
+    story.append(Spacer(1, 6))
+    story.append(Paragraph("11.2 Multi-Table Operational Join Verification", h2_style))
+    story.append(Paragraph("""Departmental load summaries were queried to verify multi-table outer join integrity:""", body_style))
 
     # Pull live department stats from DB
     conn = sqlite3.connect(DB_PATH)
@@ -776,24 +781,24 @@ COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
             Paragraph(str(dr[4]), td_style),
             Paragraph(str(dr[5]), td_style)
         ])
-    t_dept_tbl = Table(t_dept_data, colWidths=[50, 130, 148, 60, 60, 60])
+    t_dept_tbl = Table(t_dept_data, colWidths=[52, 135, 155, 60, 60, 60])
     t_dept_tbl.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#2B6CB0")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 3),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 3),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1D4ED8")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2.5),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2.5),
     ]))
     story.append(t_dept_tbl)
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 10: STEP 12 — COMPLETE RELATIONAL DATA DICTIONARY
+    # PAGE 10: STEP 12 — COMPLETE DATA DICTIONARY
     # ==========================================================================
     story.append(Paragraph("STEP 12: Documentation &amp; Data Dictionary", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""The complete relational data dictionary specifies entity attributes, physical data types, key classifications, and referential integrity constraints across the database schema:""", body_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""The formal relational data dictionary details attributes, data types, key classifications, and referential constraints across the database schema:""", body_style))
 
     dict_rows = [
         [Paragraph("Entity", th_style), Paragraph("Attribute", th_style), Paragraph("Data Type", th_style), Paragraph("Key Type", th_style), Paragraph("Domain &amp; Referential Constraints", th_style)],
@@ -812,137 +817,59 @@ COMMIT; -- If error: ROLLBACK TO SAVEPOINT InvoiceGenerated; or ROLLBACK;"""
         [Paragraph("ROOM", td_style), Paragraph("Room_type", td_style), Paragraph("VARCHAR(50)", td_style), Paragraph("—", td_style), Paragraph("CHECK IN ('General Ward', 'Semi-Private', 'Private Deluxe', 'ICU', 'CCU')", td_style)],
         [Paragraph("ROOM", td_style), Paragraph("Daily_charge", td_style), Paragraph("DECIMAL(10,2)", td_style), Paragraph("—", td_style), Paragraph("CHECK (Daily_charge >= 0)", td_style)],
         [Paragraph("ROOM", td_style), Paragraph("Status", td_style), Paragraph("VARCHAR(30)", td_style), Paragraph("—", td_style), Paragraph("CHECK IN ('Available', 'Occupied', 'Maintenance')", td_style)],
-        [Paragraph("ADMISSION", td_style), Paragraph("Admission_id", td_style), Paragraph("INTEGER", td_style), Paragraph("PK", td_style), Paragraph("In-patient hospitalization serial number", td_style)],
+        [Paragraph("ADMISSION", td_style), Paragraph("Admission_id", td_style), Paragraph("INTEGER", td_style), Paragraph("PK", td_style), Paragraph("Inpatient hospitalization serial number", td_style)],
         [Paragraph("ADMISSION", td_style), Paragraph("Room_id", td_style), Paragraph("INTEGER", td_style), Paragraph("FK", td_style), Paragraph("References ROOM(Room_id) ON DELETE RESTRICT", td_style)],
         [Paragraph("BILL", td_style), Paragraph("Bill_id", td_style), Paragraph("INTEGER", td_style), Paragraph("PK", td_style), Paragraph("Invoice number", td_style)],
         [Paragraph("BILL", td_style), Paragraph("Net_amount", td_style), Paragraph("DECIMAL(10,2)", td_style), Paragraph("—", td_style), Paragraph("Net = Total - Discount (Guarded by Trigger)", td_style)],
         [Paragraph("PAYMENT", td_style), Paragraph("Payment_id", td_style), Paragraph("INTEGER", td_style), Paragraph("PK", td_style), Paragraph("Financial transaction receipt ID", td_style)],
         [Paragraph("PAYMENT", td_style), Paragraph("Bill_id", td_style), Paragraph("INTEGER", td_style), Paragraph("FK", td_style), Paragraph("References BILL(Bill_id) ON DELETE CASCADE", td_style)]
     ]
-    t_dict = Table(dict_rows, colWidths=[75, 85, 68, 50, 230])
+    t_dict = Table(dict_rows, colWidths=[78, 88, 70, 52, 234])
     t_dict.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
+        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#0F172A")),
+        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E1")),
         ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 2.2),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 2.2),
+        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F8FAFC")]),
+        ('TOPPADDING', (0,0), (-1,-1), 2),
+        ('BOTTOMPADDING', (0,0), (-1,-1), 2),
     ]))
     story.append(t_dict)
 
     story.append(PageBreak())
 
     # ==========================================================================
-    # PAGE 11: WEB APPLICATION UI & CLOUD DEPLOYMENT ARCHITECTURE
+    # PAGE 11: STEP 13 — WEB APPLICATION & CONCLUSION (CORRECTED NUMBERING)
     # ==========================================================================
-    story.append(Paragraph("Hospital ERP Web Application &amp; Cloud Deployment", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""To provide medical staff with an intuitive interface for interacting with the database, a modern single-page <b>Hospital ERP System</b> was developed with Flask, HTML5, CSS3, and JavaScript, strictly modeled after the professional clinical reference design:""", body_style))
+    story.append(Paragraph("STEP 13: Web Application Implementation &amp; Conclusion", h1_style))
+    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2563EB"), spaceBefore=2, spaceAfter=5))
+    story.append(Paragraph("""To enable healthcare staff to interact directly with the database, a single-page <b>Hospital ERP System</b> was implemented using Flask, HTML5, CSS3, and JavaScript, strictly adhering to the clinical dashboard design:""", body_style))
 
-    # Embedded UI Screenshot
-    ui_img_path = os.path.join(ASSETS_DIR, "ui_dashboard.png")
+    story.append(Paragraph("13.1 Hospital ERP System Interface", h2_style))
+
+    # User's attached live full-screen dashboard photo
+    ui_img_path = os.path.join(ASSETS_DIR, "ui_dashboard_live.png")
     if os.path.exists(ui_img_path):
-        story.append(Image(ui_img_path, width=6.6*inch, height=3.3*inch))
+        story.append(Image(ui_img_path, width=7.0*inch, height=3.9*inch))
         story.append(Spacer(1, 3))
-        story.append(Paragraph("<b>Figure 11.1:</b> Hospital ERP Doctor Dashboard — Screen-Fit 2x3 Metric Cards Grid with 3D DNA Helix Background.", ParagraphStyle('FigCapUI', parent=body_style, fontSize=8, alignment=1, textColor=colors.HexColor("#4A5568"))))
-
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("11.1 User Interface Key Architectural Features", h2_style))
-    story.append(Paragraph("• <b>Screen-Fit Layout:</b> Designed with strict 100vh viewport scaling, eliminating unsightly horizontal and vertical page scrollbars.", bullet_style))
-    story.append(Paragraph("• <b>2x3 Clinical Metric Cards Grid:</b> Real-time display of Patients Today (Admissions, Treatment, Discharges), Expense Today with sparkline graph, Collection Today (Clinic &amp; Lab), Uncollected Dues, Lab Reports, and Bed Availability.", bullet_style))
-    story.append(Paragraph("• <b>Flyout Drawers:</b> Outdoor appointments, laboratory worklists, in-patient ward management, and financial ledgers slide out smoothly as flyout drawers, preserving dashboard cleanliness.", bullet_style))
-    story.append(Paragraph("• <b>Live SQL Query Studio:</b> A built-in terminal allowing evaluators to execute custom queries and analyze execution plans in real time.", bullet_style))
-    story.append(Paragraph("• <b>Dynamic Universal '+ New Entry' Modal:</b> Allows inserting new patients, doctors, appointments, admissions, and rooms directly into the SQL database with automated rate calculation.", bullet_style))
+        story.append(Paragraph("<b>Figure 13.1:</b> Live Hospital ERP System Interface &mdash; Screen-fit 2x3 Metric Cards Grid &amp; Clinical Suite.", ParagraphStyle('FigCapUI', parent=body_style, fontSize=7.5, alignment=1, textColor=colors.HexColor("#64748B"))))
 
     story.append(Spacer(1, 4))
-    story.append(Paragraph("11.2 Live Cloud Deployment on Render", h2_style))
-    story.append(Paragraph("• <b>GitHub Repository:</b> <code>https://github.com/Madhav-baheti/hospital-management-system</code>", bullet_style))
-    story.append(Paragraph("• <b>Live Cloud Deployment URL:</b> Available via Render PaaS with Gunicorn WSGI production server.", bullet_style))
-    story.append(Paragraph("• <b>1-Click Deploy Blueprint:</b> Configured via <code>render.yaml</code>, <code>Procfile</code>, and <code>requirements.txt</code>.", bullet_style))
+    story.append(Paragraph("• <b>Live Application Repository &amp; Source:</b> <code>https://github.com/Madhav-baheti/hospital-management-system</code>", bullet_style))
+    story.append(Paragraph("• <b>Screen-Fit Responsive Architecture:</b> Strict 100vh viewport fit, eliminating horizontal and vertical scrollbars.", bullet_style))
+    story.append(Paragraph("• <b>Interactive 2x3 Metric Cards Grid:</b> Real-time display of Patients Today, Expense Today with sparklines, Collection Today, Dues, Lab Reports, and Bed Availability.", bullet_style))
+    story.append(Paragraph("• <b>Dynamic Universal '+ New Entry' Modal:</b> Allows inserting new patients, doctors, appointments, admissions, and rooms directly into the database with automated room rate calculations.", bullet_style))
+    story.append(Paragraph("• <b>Live SQL Query Studio:</b> A built-in terminal allowing evaluators to run queries and analyze execution plans in real time.", bullet_style))
 
-    story.append(PageBreak())
-
-    # ==========================================================================
-    # PAGE 12: STEP 13 — PRESENTATION DECK & VIVA VOCE QUESTIONS
-    # ==========================================================================
-    story.append(Paragraph("STEP 13: Presentation, Reporting &amp; Viva Voce", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""Step 13 organizes the final presentation deliverables, 12-slide presentation structure, high-frequency viva voce technical questions, and evaluation criteria compliance matrix.""", body_style))
-
-    story.append(Paragraph("13.1 Slide Deck Presentation Structure (12 Slides)", h2_style))
-
-    slides_outline = [
-        ("Slide 1", "Title Slide: Hospital Management System, Candidate (Madhav Baheti - 25STUCHH010661), Dept &amp; Guide."),
-        ("Slide 2", "Problem Statement &amp; Need: Inefficiencies of fragmented hospital record systems, double-bookings, manual billing."),
-        ("Slide 3", "System Objectives &amp; Scope: Centralized database for OPD, IPD, Diagnostics, Prescriptions, Rooms &amp; Billing."),
-        ("Slide 4", "Requirements Gathering: Functional (FR-01 to FR-06) and Non-Functional (NFR-01 to NFR-03) matrix."),
-        ("Slide 5", "Entity-Relationship (ER) Architecture: Visual schema of 17 entities, cardinalities and primary/foreign keys."),
-        ("Slide 6", "Relational Schema &amp; 3NF Normalization: Proof of 1NF, 2NF, and 3NF decomposition."),
-        ("Slide 7", "SQL Implementation &amp; Constraints: DDL highlights, ON DELETE actions, domain CHECK constraints."),
-        ("Slide 8", "Advanced SQL Features: Analytical Views, Stored Procedures, and Automated Business Triggers."),
-        ("Slide 9", "Transaction Management: ACID demonstration, Savepoints, Concurrency Locks &amp; Serializability."),
-        ("Slide 10", "Indexing &amp; Query Optimization: B-Tree Indexes and EXPLAIN Query Plan cost reduction analysis."),
-        ("Slide 11", "Web Application &amp; Doctor Dashboard UI: Integration demo with real SQL database &amp; Render cloud deployment."),
-        ("Slide 12", "Conclusion &amp; Future Enhancements: HL7/FHIR integration, mobile patient portal, project takeaways.")
-    ]
-    for sn, sd in slides_outline:
-        story.append(Paragraph(f"• <b>{sn}:</b> {sd}", bullet_style))
-
-    story.append(Spacer(1, 6))
-    story.append(Paragraph("13.2 High-Frequency Viva Voce Questions &amp; Model Answers", h2_style))
-
-    viva_qa_list = [
-        ("Q1: Why was Third Normal Form (3NF) selected over BCNF for this hospital database?",
-         "<b>Answer:</b> 3NF eliminates all partial and transitive functional dependencies while strictly guaranteeing dependency preservation and lossless joins. In a healthcare system with complex doctor schedules and department constraints, preserving all functional dependencies without requiring multi-table join re-computation on every write operation maintains optimal transactional throughput."),
-        ("Q2: How does the database prevent two patients from being scheduled with the same doctor simultaneously?",
-         "<b>Answer:</b> We enforce a dual-layer defense: (1) An active SQL trigger (<code>trg_prevent_appointment_overlap</code>) that validates slot uniqueness on INSERT, raising an abort exception if a conflict exists; and (2) ACID transaction isolation with row-level locks (<code>BEGIN IMMEDIATE</code> / <code>FOR UPDATE</code>) that serializes concurrent booking requests."),
-        ("Q3: What foreign key constraint policy is applied when a doctor record is deleted?",
-         "<b>Answer:</b> We configured <code>ON DELETE SET NULL</code> for the Doctor foreign key in <code>APPOINTMENT</code> and <code>ADMISSION</code>, and <code>ON DELETE RESTRICT</code> for active consultation histories. This prevents cascading deletion from destroying vital historical patient diagnosis records and billing invoices."),
-        ("Q4: How does indexing impact database read and write performance?",
-         "<b>Answer:</b> B-Tree secondary indexes accelerate search queries from sequential scans ($O(N)$) to binary tree traversals ($O(\\log N)$), cutting query latency by over 90%. However, because each write requires updating the index structure, indexes were applied strictly to primary search keys and high-cardinality foreign keys.")
-    ]
-    for q, a in viva_qa_list:
-        story.append(Paragraph(f"<b>{q}</b>", ParagraphStyle('QStyle', parent=body_style, fontName='Helvetica-Bold', textColor=colors.HexColor("#1A365D"))))
-        story.append(Paragraph(f"{a}", ParagraphStyle('AStyle', parent=body_style, leftIndent=8)))
-        story.append(Spacer(1, 2))
-
-    story.append(PageBreak())
-
-    # ==========================================================================
-    # PAGE 13: EVALUATION COMPLIANCE MATRIX & CONCLUSION
-    # ==========================================================================
-    story.append(Paragraph("13.3 Project Evaluation Criteria Compliance Matrix", h2_style))
-
-    matrix_rows = [
-        [Paragraph("Evaluation Criteria", th_style), Paragraph("Weight", th_style), Paragraph("Project Implementation Compliance", th_style), Paragraph("Status", th_style)],
-        [Paragraph("Problem Understanding &amp; Analysis", td_style), Paragraph("15%", td_style), Paragraph("Thorough analysis of hospital clinical workflows, manual bottlenecks, and formal functional/non-functional specifications.", td_style), Paragraph("<b>100%</b>", td_style)],
-        [Paragraph("Database Design (ER + Schema)", td_style), Paragraph("15%", td_style), Paragraph("17 entities, cardinalities, Crow's foot notation, formal 3NF normalization proof, and comprehensive 19-table data dictionary.", td_style), Paragraph("<b>100%</b>", td_style)],
-        [Paragraph("SQL Implementation (DDL/DML/Queries)", td_style), Paragraph("25%", td_style), Paragraph("DDL with PK, FK, CHECK constraints; rich clinical seed dataset; 5 analytical views, 4 stored procedures, 4 triggers, and outer joins.", td_style), Paragraph("<b>100%</b>", td_style)],
-        [Paragraph("Output Accuracy &amp; Functionality", td_style), Paragraph("20%", td_style), Paragraph("Verified execution logs, ACID transaction blocks, EXPLAIN index cost reduction analysis, and full-stack Hospital ERP web app.", td_style), Paragraph("<b>100%</b>", td_style)],
-        [Paragraph("Report Presentation &amp; Viva", td_style), Paragraph("25%", td_style), Paragraph("Complete 13-step documentation report, 12-slide presentation structure, viva model answers, and Git repository with Render cloud deployment.", td_style), Paragraph("<b>100%</b>", td_style)],
-    ]
-    t_mat = Table(matrix_rows, colWidths=[120, 48, 290, 50])
-    t_mat.setStyle(TableStyle([
-        ('BACKGROUND', (0,0), (-1,0), colors.HexColor("#1A365D")),
-        ('GRID', (0,0), (-1,-1), 0.5, colors.HexColor("#CBD5E0")),
-        ('VALIGN', (0,0), (-1,-1), 'TOP'),
-        ('ROWBACKGROUNDS', (0,1), (-1,-1), [colors.white, colors.HexColor("#F7FAFC")]),
-        ('TOPPADDING', (0,0), (-1,-1), 4),
-        ('BOTTOMPADDING', (0,0), (-1,-1), 4),
-    ]))
-    story.append(t_mat)
-
-    story.append(Spacer(1, 10))
-    story.append(Paragraph("Conclusion &amp; Future Scope", h1_style))
-    story.append(HRFlowable(width="100%", thickness=1, color=colors.HexColor("#2B6CB0"), spaceBefore=2, spaceAfter=6))
-    story.append(Paragraph("""The Hospital Management System project successfully demonstrates the application of database engineering principles to a complex healthcare domain. By progressing systematically through conceptual modeling, 3NF normalization, DDL/DML implementation, advanced SQL features, ACID transactions, and query optimization, the system achieves:
+    story.append(Spacer(1, 8))
+    story.append(Paragraph("13.2 Conclusion &amp; Future Scope", h2_style))
+    story.append(Paragraph("""The Hospital Management System demonstrates the application of database engineering principles to a healthcare domain. By following the systematic progression through conceptual modeling, 3NF normalization, DDL/DML implementation, advanced SQL features, ACID transactions, and query optimization, the system achieves:
 1. <b>Zero Data Redundancy:</b> All 19 normalized entities prevent update, deletion, and insertion anomalies.
 2. <b>High Reliability &amp; Soundness:</b> Autonomous ECA triggers guarantee that doctor appointments cannot be double-booked and bed statuses automatically synchronize with patient admissions and discharges.
-3. <b>Optimized Read Latency:</b> B-Tree composite indexes reduce disk I/O by over 92%, supporting high-concurrency outpatient and emergency operations.
-4. <b>Seamless User Experience:</b> The modern Hospital ERP web interface provides clinicians and administrators with real-time analytics, dynamic universal record entry, and live SQL evaluation capabilities, deployed globally on Render cloud infrastructure.""", body_style))
+3. <b>Optimized Query Latency:</b> B-Tree composite indexes reduce disk I/O by over 92%, supporting high-concurrency outpatient and emergency operations.
+4. <b>Seamless User Experience:</b> The modern Hospital ERP web interface provides clinicians with real-time operational analytics and universal record creation capabilities.""", body_style))
 
-    story.append(Spacer(1, 4))
-    story.append(Paragraph("<b>Future Enhancements:</b>", h2_style))
+    story.append(Spacer(1, 3))
+    story.append(Paragraph("<b>Future Scope:</b>", ParagraphStyle('FutureScopeTitle', parent=h2_style, fontSize=8.5, spaceBefore=4, spaceAfter=2)))
     story.append(Paragraph("• Integration with HL7/FHIR international healthcare interoperability standards for external laboratory exchange.", bullet_style))
     story.append(Paragraph("• Role-Based Access Control (RBAC) via database user permissions (GRANT / REVOKE) for doctors, nurses, and billing staff.", bullet_style))
     story.append(Paragraph("• Machine Learning predictive models for forecasting inpatient length of stay and bed occupancy rates.", bullet_style))
